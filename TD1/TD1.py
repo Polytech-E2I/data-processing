@@ -53,7 +53,7 @@ printMeanAndVar(X)
 displayBoxplot(X)
 
 #%%
-# Histogram of quantitative variables
+# Histograms of quantitative numerical variables
 displayDualHistograms(
     X,
     ['Height', 'Weight'],
@@ -69,19 +69,16 @@ displayDualHistograms(
 ######## HISTOGRAMMES POUR QUANTITA, BARGRAPH FOR QUALITA ######################
 
 #%%
-###### NP.UNIQUE PERMET DE FAIRE APPARAITRES LES ZÉROS #########################
-plt.figure()
-ax1 = plt.subplot(1, 2, 1)
-#Xnum['Age'].value_counts().plot(kind='bar', ax=ax1)
-values, counts = np.unique(Xnum.iloc[:, 2], return_counts=True)
-ax1.bar(values, counts, width=0.5)
-ax1.set_ylabel("Quantité absolue")
-ax2 = plt.subplot(1, 2, 2)
-Xnum['Year'].value_counts().plot(kind='bar', ax=ax2)
-ax2.set_ylabel("Quantité absolue")
-plt.suptitle("Répartition des âges et promotions")
+# Bargraphs of qualitative numerical variables
 
-#plt.show()
+displayDualBarGraph(
+    X,
+    ['Age', 'Year'],
+    ['Age (years)', 'Year (from 1900)'],
+    'Spread of ages and years',
+    True
+)
+#%%
 
 print("Modalités pour Xcat :\n", Xcat.value_counts())
 

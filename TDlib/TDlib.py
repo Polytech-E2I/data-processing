@@ -3,6 +3,7 @@ import os.path as op
 import pandas as pd
 from pprint import pprint
 import matplotlib.pyplot as plt
+import numpy as np
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -81,3 +82,40 @@ def displayDualHistograms(
     plt.suptitle(title)
 
     plt.show()
+
+def displayDualBarGraph(
+    X: pd.DataFrame,
+    columns: list[str],
+    xlabels: list[str],
+    title: str,
+    show_zeros: bool = False,
+):
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    ###### NP.UNIQUE PERMET DE FAIRE APPARAITRES LES ZÉROS #########################
+
+    plt.figure()
+
+    ax1 = plt.subplot(1, 2, 1)
+    if show_zeros:
+        #values, counts = np.unique(Xnum.iloc[:, 2], return_counts=True)
+        values, counts = np.unique(Xnum[columns[0]], return_counts=True)
+        ax1.bar(values, counts, width=0.5)
+    else:
+        Xnum[columns[0]].value_counts().plot(kind='bar', ax=ax1)
+    ax1.set_xlabel(xlabels[0])
+    ax1.set_ylabel("Absolute quantity")
+
+    ax2 = plt.subplot(1, 2, 2)
+    if show_zeros:
+        values, counts = np.unique(Xnum[columns[1]], return_counts=True)
+        ax2.bar(values, counts, width=0.5)
+    else:
+        Xnum[columns[1]].value_counts().plot(kind='bar', ax=ax2)
+    ax2.set_xlabel(xlabels[1])
+    ax2.set_ylabel("Absolute quantity")
+
+    plt.suptitle(title)
+
+    plt.show()
+
