@@ -49,33 +49,24 @@ prettyPrintDataframe(X)
 printMeanAndVar(X)
 
 #%%
-
 # Boxplot
-Xnum.boxplot()
-plt.ylabel("Valeurs")
-plt.title("Répartition des différentes valeurs")
+displayBoxplot(X)
 
 #%%
-
-######## HISTOGRAMMES POUR QUANTITA, BARGRAPH FOR QUALITA ######################
 # Histogram of quantitative variables
-Xnum[['Height', 'Weight']].hist()
-ax1 = plt.subplot(1,2,1)
-ax1.set_xlabel("Taille (cm)")
-ax1.set_ylabel("Quantité absolue")
-ax2 = plt.subplot(1,2,2)
-ax2.set_xlabel("Poids (kg)")
-ax2.set_ylabel("Quantité absolue")
-plt.suptitle("Répartition des tailles et poids")
-
-Xnum[['Pulse1', 'Pulse2']].hist()
-ax1 = plt.subplot(1,2,1)
-ax1.set_xlabel("Pouls (bpm)")
-ax1.set_ylabel("Quantité absolue")
-ax2 = plt.subplot(1,2,2)
-ax2.set_xlabel("Pouls (bpm)")
-ax2.set_ylabel("Quantité absolue")
-plt.suptitle("Répartition des pouls relevés")
+displayDualHistograms(
+    X,
+    ['Height', 'Weight'],
+    ("Height (cm)", "Weight (kg)"),
+    "Spread of heights and weights"
+)
+displayDualHistograms(
+    X,
+    ['Pulse1', 'Pulse2'],
+    ("Pulse1 (bpm)", "Pulse2 (bpm)"),
+    "Spread of pulses"
+)
+######## HISTOGRAMMES POUR QUANTITA, BARGRAPH FOR QUALITA ######################
 
 #%%
 ###### NP.UNIQUE PERMET DE FAIRE APPARAITRES LES ZÉROS #########################

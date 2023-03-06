@@ -2,6 +2,7 @@ import inspect
 import os.path as op
 import pandas as pd
 from pprint import pprint
+import matplotlib.pyplot as plt
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -53,3 +54,30 @@ def printMeanAndVar(X: pd.DataFrame):
     print(Xnum.mean().to_string())
     printprefix("Variances of the numerical variables :")
     print(Xnum.var().to_string())
+
+def displayBoxplot(X: pd.DataFrame):
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    Xnum.boxplot()
+    plt.ylabel("Values")
+    plt.title("Spread of numerical variables")
+
+def displayDualHistograms(
+    X: pd.DataFrame,
+    columns: list[str],
+    xlabels: list[str],
+    title: str
+):
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    Xnum[columns].hist()
+
+    ax1 = plt.subplot(1, 2, 1)
+    ax1.set_xlabel(xlabels[0])
+    ax1.set_ylabel("Absolute quantity")
+    ax2 = plt.subplot(1, 2, 2)
+    ax2.set_xlabel(xlabels[1])
+    ax2.set_ylabel("Absolute quantity")
+    plt.suptitle(title)
+
+    plt.show()
