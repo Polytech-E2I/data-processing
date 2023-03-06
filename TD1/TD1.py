@@ -82,16 +82,21 @@ displayDualBarGraph(
 
 print("Modalités pour Xcat :\n", Xcat.value_counts())
 
+#%%
 Xnum.plot.scatter(x='Height', y='Weight')
 pd.plotting.scatter_matrix(Xnum)
 
+#%%
 pprint(Xnum.corr())
 
+#%%
 crosstab = pd.crosstab(X['Gender'], X['Smokes'])
 crosstab.plot(kind='bar', stacked=True)
 
+#%%
 pprint(X.groupby("Gender").mean())
 
 X.boxplot(column=['Height'], by=['Gender'])
 
+#%%
 plt.show()

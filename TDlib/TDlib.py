@@ -119,3 +119,11 @@ def displayDualBarGraph(
 
     plt.show()
 
+def displayScatterMatrix(
+    X: pd.DataFrame,
+    columns: list[str]
+):
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    Xnum.plot.scatter(x=columns[0], y=columns[1])
+    pd.plotting.scatter_matrix(Xnum)
