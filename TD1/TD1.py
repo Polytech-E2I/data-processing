@@ -1,5 +1,7 @@
-#%%
 #!/usr/bin/python
+
+#%%
+# Import modules
 
 import sys
 import os.path as op
@@ -13,6 +15,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pprint import pprint
 
+#%%
+# Import data
+
 X = excelToPandas(
     "Exercices.xlsx",
     "Feuil1",
@@ -23,6 +28,7 @@ X = excelToPandas(
 Xcat = separateNumAndCat(X)['Xcat']
 Xnum = separateNumAndCat(X)['Xnum']
 
+#%%
 # Change categories to their explicit meanings
 categories_values = {
     "Gender": {1: 'Male', 2: 'Female'},
@@ -35,12 +41,12 @@ for i in categories_values.keys():
     Xcat[i].replace(categories_values[i], inplace=True)
 
 #%%
-# pprint(Xnum)
-# pprint(Xcat)
+# Display Dataframes
+prettyPrintDataframe(X)
 
-# Mean and variance
-# pprint(Xnum.mean())
-# pprint(Xnum.var())
+#%%
+# Display mean and variance
+printMeanAndVar(X)
 
 #%%
 
