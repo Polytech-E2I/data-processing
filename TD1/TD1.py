@@ -1,35 +1,27 @@
+#%%
 #!/usr/bin/python
+
+import sys
+import os.path as op
+libdir = op.join(op.dirname(op.dirname(op.abspath(__file__))), "TDlib")
+sys.path.append(libdir)
+from TDlib import *
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pprint import pprint
-import os.path as op
 
-# Get the absolute path to the dataset that is alongside the Python script
-scriptdir = op.dirname(op.abspath(__file__))
-datafile = op.join(scriptdir, "Exercices.xlsx")
-
-# Read dataset
-X = pd.read_excel(
-    datafile,
-    sheet_name="Feuil1",    # Name of the sheet to use
-    header=0,               # Row to use as column labels
-    index_col=0             # Column to use as row labels
+X = excelToPandas(
+    "Exercices.xlsx",
+    "Feuil1",
+    0,
+    0,
+    ['Gender', 'Smokes', 'Alcohol', 'Exercise', 'Ran']
 )
-# Drop missing values
-X.dropna()
-# Indicate which columns are categories instead of values
-categories_list = ['Gender', 'Smokes', 'Alcohol', 'Exercise', 'Ran']
-X[categories_list] = X[categories_list].astype("category")
-# Display information
-# pprint(X.describe())
-# pprint(X.info())
-
-# Separate categories and numerical data
-Xnum = X.select_dtypes(exclude=['category'])
-Xcat = X.select_dtypes(include=['category'])
+Xcat = separateNumAndCat(X)['Xcat']
+Xnum = separateNumAndCat(X)['Xnum']
 
 # Change categories to their explicit meanings
 categories_values = {
@@ -41,6 +33,8 @@ categories_values = {
 }
 for i in categories_values.keys():
     Xcat[i].replace(categories_values[i], inplace=True)
+
+#%%
 # pprint(Xnum)
 # pprint(Xcat)
 
@@ -48,12 +42,14 @@ for i in categories_values.keys():
 # pprint(Xnum.mean())
 # pprint(Xnum.var())
 
-
+#%%
 
 # Boxplot
 Xnum.boxplot()
 plt.ylabel("Valeurs")
 plt.title("Répartition des différentes valeurs")
+
+#%%
 
 ######## HISTOGRAMMES POUR QUANTITA, BARGRAPH FOR QUALITA ######################
 # Histogram of quantitative variables
@@ -75,6 +71,7 @@ ax2.set_xlabel("Pouls (bpm)")
 ax2.set_ylabel("Quantité absolue")
 plt.suptitle("Répartition des pouls relevés")
 
+#%%
 ###### NP.UNIQUE PERMET DE FAIRE APPARAITRES LES ZÉROS #########################
 plt.figure()
 ax1 = plt.subplot(1, 2, 1)
