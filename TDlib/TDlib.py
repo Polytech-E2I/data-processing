@@ -4,6 +4,7 @@ import pandas as pd
 from pprint import pprint
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -131,15 +132,6 @@ def displayBarGraphs(
 
     plt.show()
 
-def displayScatterMatrix(
-    X: pd.DataFrame,
-    columns: list[str]
-):
-    Xnum = separateNumAndCat(X)['Xnum']
-
-    Xnum.plot.scatter(x=columns[0], y=columns[1])
-    pd.plotting.scatter_matrix(Xnum)
-
 def renameCategories(X: pd.DataFrame, categories: dict[dict]) -> pd.DataFrame:
     """Renames categories based on a dict
 
@@ -193,4 +185,40 @@ def displayTwoColumnScatter(
 
     plt.title(title)
 
+    plt.show()
+
+def displayScatterMatrix(X: pd.DataFrame, title: str):
+    """Displays a scatter matrix across all of the DataFrame's columns
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame to extract the data from
+    title: str
+        The title of the graph
+    """
+
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    pd.plotting.scatter_matrix(Xnum)
+
+    plt.suptitle(title)
+
+    plt.show()
+
+def displayCorrelationMatrix(X: pd.DataFrame, title: str):
+    """Displays the correlation matrix of the numerical data in the DataFrame
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame from which to extract the data
+    title : str
+            The title of the graph
+    """
+
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    sns.heatmap(Xnum.corr(), cmap='coolwarm', annot=True)
+    plt.title(title)
     plt.show()

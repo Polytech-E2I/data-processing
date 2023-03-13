@@ -99,9 +99,12 @@ td.displayTwoColumnScatter(
 )
 
 #%%
-#pd.plotting.scatter_matrix(Xnum)
+# Display scatter matrix
+td.displayScatterMatrix(X, "Scatter matrix of the data")
+
 #%%
-pprint(Xnum.corr())
+# Display correlation matrix
+td.displayCorrelationMatrix(X, "Correlation matrix of the data")
 
 #%%
 crosstab = pd.crosstab(X['Gender'], X['Smokes'])
