@@ -85,9 +85,9 @@ categories_values = {
     "Ran":      {1: "Ran",      2: "Sat"}
 }
 
-temp = td.renameCategories(Xcat, categories_values)
+X_renamed = td.renameCategories(X, categories_values)
 
-print("DataFrame with renamed categories :\n", temp)
+print("DataFrame with renamed categories :\n", X_renamed)
 
 #%%
 # Display scatter plot
@@ -107,13 +107,19 @@ td.displayScatterMatrix(X, "Scatter matrix of the data")
 td.displayCorrelationMatrix(X, "Correlation matrix of the data")
 
 #%%
-crosstab = pd.crosstab(X['Gender'], X['Smokes'])
-crosstab.plot(kind='bar', stacked=True)
+# Display cross-tabulation
+td.displayCrosstab(
+    X,
+    categories_values,
+    ('Gender', 'Smokes'),
+    "Cross tabulation of Gender and Smokes"
+)
 
 #%%
-pprint(X.groupby("Gender").mean())
-
-X.boxplot(column=['Height'], by=['Gender'])
+# Print grouped means
+pprint(td.calculateGroupedMeans(X, categories_values, "Gender"))
 
 #%%
-plt.show()
+td.displayGroupedBoxplot(X, categories_values, Xunits, 'Gender', ['Height'])
+
+# %%
