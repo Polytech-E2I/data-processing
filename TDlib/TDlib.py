@@ -63,32 +63,44 @@ def displayBoxplot(X: pd.DataFrame):
     plt.ylabel("Values")
     plt.title("Spread of numerical variables")
 
-def displayDualHistograms(
+def displayHistograms(
     X: pd.DataFrame,
+    Xunits: dict,
     columns: list[str],
-    xlabels: list[str],
     title: str
 ):
+    """Displays histograms side by side from columns of the DataFrame
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame from which to extract the data
+    Xunits : dict
+        List of units associated with the DataFrame column names
+    columns : list[str]
+        list of columns to display
+    title : str
+        Global title
+    """
     Xnum = separateNumAndCat(X)['Xnum']
 
     Xnum[columns].hist()
 
-    ax1 = plt.subplot(1, 2, 1)
-    ax1.set_xlabel(xlabels[0])
-    ax1.set_ylabel("Absolute quantity")
-    ax2 = plt.subplot(1, 2, 2)
-    ax2.set_xlabel(xlabels[1])
-    ax2.set_ylabel("Absolute quantity")
+    for i in range(0, len(columns)):
+        ax = plt.subplot(1, len(columns), i+1)
+        ax.set_xlabel("{} ({})".format(columns[i], Xunits[columns[i]]))
+        ax.set_ylabel("Absolute value")
+
     plt.suptitle(title)
 
     plt.show()
 
-def displayDualBarGraph(
+def displayBarGraphs(
     X: pd.DataFrame,
+    Xunits: dict,
     columns: list[str],
-    xlabels: list[str],
     title: str,
-    show_zeros: bool = False,
+    show_zeros: bool = True,
 ):
     Xnum = separateNumAndCat(X)['Xnum']
 
@@ -96,24 +108,24 @@ def displayDualBarGraph(
 
     plt.figure()
 
-    ax1 = plt.subplot(1, 2, 1)
-    if show_zeros:
-        #values, counts = np.unique(Xnum.iloc[:, 2], return_counts=True)
-        values, counts = np.unique(Xnum[columns[0]], return_counts=True)
-        ax1.bar(values, counts, width=0.5)
-    else:
-        Xnum[columns[0]].value_counts().plot(kind='bar', ax=ax1)
-    ax1.set_xlabel(xlabels[0])
-    ax1.set_ylabel("Absolute quantity")
+    for i in range(0, len(columns)):
+        ax = plt.subplot(1, len(columns), i+1)
+        if show_zeros:
+            values, counts = np.unique(Xnum[columns[i]], return_counts=True)
+            ax.bar(values, counts, width=0.5)
+        else:
+            Xnum[columns[i]].value_counts().plot(kind='bar', ax=ax)
+        ax.set_xlabel("{} ({})".format(columns[i], Xunits[columns[i]]))
+        ax.set_ylabel("Absolute quantity")
 
-    ax2 = plt.subplot(1, 2, 2)
-    if show_zeros:
-        values, counts = np.unique(Xnum[columns[1]], return_counts=True)
-        ax2.bar(values, counts, width=0.5)
-    else:
-        Xnum[columns[1]].value_counts().plot(kind='bar', ax=ax2)
-    ax2.set_xlabel(xlabels[1])
-    ax2.set_ylabel("Absolute quantity")
+    # ax2 = plt.subplot(1, 2, 2)
+    # if show_zeros:
+    #     values, counts = np.unique(Xnum[columns[1]], return_counts=True)
+    #     ax2.bar(values, counts, width=0.5)
+    # else:
+    #     Xnum[columns[1]].value_counts().plot(kind='bar', ax=ax2)
+    # ax2.set_xlabel(xlabels[1])
+    # ax2.set_ylabel("Absolute quantity")
 
     plt.suptitle(title)
 
@@ -127,3 +139,58 @@ def displayScatterMatrix(
 
     Xnum.plot.scatter(x=columns[0], y=columns[1])
     pd.plotting.scatter_matrix(Xnum)
+
+def renameCategories(X: pd.DataFrame, categories: dict[dict]) -> pd.DataFrame:
+    """Renames categories based on a dict
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame in which to rename the categories. They MUST be of dtype
+        "category" to be affected
+    categories : dict[dict]
+        A dictionary with the desired DataFrame's column names as keys with
+        another dict as value, which itself contains the categories to replace
+        as keys and the new names as values
+
+    Returns
+    -------
+    pd.DataFrame
+        The new DataFrame with renamed categories
+    """
+    temp = X
+    for column in temp.columns:
+        temp[column] = temp[column].cat.rename_categories(categories[column])
+
+    return temp
+
+def displayTwoColumnScatter(
+    X: pd.DataFrame,
+    Xunits: dict,
+    columns: tuple[str],
+    title: str
+):
+    """Displays a scatter plot of two columns in the DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame from which the columns will be used
+    Xunits: dict
+        Units associated with the DataFrame columns
+    columns: tuple[str]
+        The X and Y column names
+    title: str
+        The graph's title
+    """
+
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    Xnum.plot.scatter(x=columns[0], y=columns[1])
+
+    plt.xlabel("{} ({})".format(columns[0], Xunits[columns[0]]))
+    plt.ylabel("{} ({})".format(columns[1], Xunits[columns[1]]))
+
+    plt.title(title)
+
+    plt.show()

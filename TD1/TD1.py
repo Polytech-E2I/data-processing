@@ -7,7 +7,7 @@ import sys
 import os.path as op
 libdir = op.join(op.dirname(op.dirname(op.abspath(__file__))), "TDlib")
 sys.path.append(libdir)
-from TDlib import *
+import TDlib as td
 
 import pandas as pd
 import numpy as np
@@ -18,52 +18,49 @@ from pprint import pprint
 #%%
 # Import data
 
-X = excelToPandas(
+X = td.excelToPandas(
     "Exercices.xlsx",
     "Feuil1",
     0,
     0,
     ['Gender', 'Smokes', 'Alcohol', 'Exercise', 'Ran']
 )
-Xcat = separateNumAndCat(X)['Xcat']
-Xnum = separateNumAndCat(X)['Xnum']
-
-#%%
-# Change categories to their explicit meanings
-categories_values = {
-    "Gender": {1: 'Male', 2: 'Female'},
-    "Smokes": {1: "Smoker", 2: "Non-smoker"},
-    "Alcohol": {1: "Drinks", 2: "Doesn't drink"},
-    "Exercise": {1: "High", 2: "Moderate", 3: "Low"},
-    "Ran":      {1: "Ran", 2: "Sat"}
+Xunits = {
+    "Height":   "cm",
+    "Weight":   "kg",
+    "Age":      "years",
+    "Pulse1":   "BPM",
+    "Pulse2":   "BPM",
+    "Year":     "from 1900"
 }
-for i in categories_values.keys():
-    Xcat[i].replace(categories_values[i], inplace=True)
+
+Xcat = td.separateNumAndCat(X)['Xcat']
+Xnum = td.separateNumAndCat(X)['Xnum']
 
 #%%
 # Display Dataframes
-prettyPrintDataframe(X)
+td.prettyPrintDataframe(X)
 
 #%%
 # Display mean and variance
-printMeanAndVar(X)
+td.printMeanAndVar(X)
 
 #%%
 # Boxplot
-displayBoxplot(X)
+td.displayBoxplot(X)
 
 #%%
 # Histograms of quantitative numerical variables
-displayDualHistograms(
+td.displayHistograms(
     X,
+    Xunits,
     ['Height', 'Weight'],
-    ("Height (cm)", "Weight (kg)"),
     "Spread of heights and weights"
 )
-displayDualHistograms(
+td.displayHistograms(
     X,
+    Xunits,
     ['Pulse1', 'Pulse2'],
-    ("Pulse1 (bpm)", "Pulse2 (bpm)"),
     "Spread of pulses"
 )
 ######## HISTOGRAMMES POUR QUANTITA, BARGRAPH FOR QUALITA ######################
@@ -71,21 +68,38 @@ displayDualHistograms(
 #%%
 # Bargraphs of qualitative numerical variables
 
-displayDualBarGraph(
+td.displayBarGraphs(
     X,
+    Xunits,
     ['Age', 'Year'],
-    ['Age (years)', 'Year (from 1900)'],
-    'Spread of ages and years',
-    True
+    'Spread of ages and years'
 )
 #%%
 
-print("Modalités pour Xcat :\n", Xcat.value_counts())
+# Change categories to their explicit meanings
+categories_values = {
+    "Gender":   {1: 'Male',     2: 'Female'},
+    "Smokes":   {1: "Smoker",   2: "Non-smoker"},
+    "Alcohol":  {1: "Drinks",   2: "Doesn't drink"},
+    "Exercise": {1: "High",     2: "Moderate",          3: "Low"},
+    "Ran":      {1: "Ran",      2: "Sat"}
+}
+
+temp = td.renameCategories(Xcat, categories_values)
+
+print("DataFrame with renamed categories :\n", temp)
 
 #%%
-Xnum.plot.scatter(x='Height', y='Weight')
-pd.plotting.scatter_matrix(Xnum)
+# Display scatter plot
+td.displayTwoColumnScatter(
+    X,
+    Xunits,
+    ("Height", "Weight"),
+    "Weight against Height"
+)
 
+#%%
+#pd.plotting.scatter_matrix(Xnum)
 #%%
 pprint(Xnum.corr())
 
