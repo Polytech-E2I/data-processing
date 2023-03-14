@@ -59,11 +59,11 @@ td.displayParetoDiagram(X, "Pareto diagram of the grades")
 print(td.totalVariance(X))
 
 # %%
-## 7
+## 7. Donner la figure qui présentent les individus dans l’espace des 2 composantes principales.
 td.displayPopulationInFirstMainComponents(X)
 
 # %%
-## 8
+## 8. Pour interpréter les composantes principales on va présenter la figure : cercle des corrélations. Créer une matrice corvar de taille (4, 2) contenant les corrélations entre les 4 variables de départ et les 2 composantes principales (np.corrcoef)
 
 td.displayCorrelationCircle(X)
 
