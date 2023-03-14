@@ -19,6 +19,7 @@ def excelToPandas(
     index_col: int,
     categories: list[str]
 ) -> pd.DataFrame:
+
     # Get the caller script's path
     callerfilename = op.abspath(inspect.stack()[1].filename)
     callerdir = op.dirname(callerfilename)
@@ -415,3 +416,11 @@ def displayCorrelationCircle(X: pd.DataFrame):
         plt.annotate(X.columns[j],(corvar[j,0],corvar[j,1]))
 
     plt.show()
+
+def totalVariance(X: pd.DataFrame) -> float:
+
+    acp = PCA()
+    Xacp = acp.fit(X).transform(X)
+
+    return acp.explained_variance_.sum()    # First option
+    # return X.var().sum()                  # Second option

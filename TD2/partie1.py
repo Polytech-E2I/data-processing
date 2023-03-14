@@ -25,44 +25,38 @@ X = td.excelToPandas(
     []
 )
 
-
 #%%
-## 1
+## 1. Réaliser une analyse univariée des variables (boxplot, moyenne et variance de chaque variable)
 td.printMeanAndVar(X)
-
-#%%
 td.displayBoxplot(X)
 
 #%%
-## 2
+## 2. Réaliser une analyse bivariée des variables (graphiques des variables 2 à 2, calcul de la matrice des corrélations)
 td.displayCorrelationMatrix(X, "Correlation matrix of the grades")
-
-#%%
 td.displayScatterMatrix(X, "Scatter matrix of the grades")
 
 #%%
-## 3
+## 3. Donner la matrice de variance-covariance
 td.displayCovarianceMatrix(X, "Covariance matrix of the grades")
 
 #%%
-## 4
-from sklearn.decomposition import PCA
-acp = PCA()
-Xacp = acp.fit(X).transform(X)
-print(Xacp)
+## 4. Réaliser l’ACP en utilisant la fonction
+# from sklearn.decomposition import PCA
+# acp = PCA()
+# Xacp = acp.fit(X).transform(X)
+# print(Xacp)
 
 #%%
-# ## 5
+## 5. Présenter les variances expliquées par chaque axe (ou les pourcentages de variance) sous la forme d’un pareto (voir cours)
 td.displayParetoDiagram(X, "Pareto diagram of the grades")
 
 # Ici on voit qu'avex deux composantes principales, on s'approche suffisamment
 # des 100% de la variance cumulée donc elles suffiront pour décrire
 
 # %%
-## 6
+## 6. Donnez la variance totale du nuage de points-individus ? (de 2 manières)
 
-# print(acp.explained_variance_.sum())
-# print(X.var().sum())
+print(td.totalVariance(X))
 
 # %%
 ## 7
