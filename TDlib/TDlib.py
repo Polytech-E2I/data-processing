@@ -5,6 +5,7 @@ from pprint import pprint
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from sklearn.decomposition import PCA
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -63,6 +64,8 @@ def displayBoxplot(X: pd.DataFrame):
     Xnum.boxplot()
     plt.ylabel("Values")
     plt.title("Spread of numerical variables")
+
+    plt.show()
 
 def displayHistograms(
     X: pd.DataFrame,
@@ -224,6 +227,23 @@ def displayCorrelationMatrix(X: pd.DataFrame, title: str):
     plt.title(title)
     plt.show()
 
+def displayCovarianceMatrix(X: pd.DataFrame, title: str):
+    """Displays the covariance matrix of the numerical data in the DataFrame
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame to work on
+    title : str
+        The title of the graph
+    """
+
+    Xnum = separateNumAndCat(X)['Xnum']
+
+    sns.heatmap(Xnum.cov(), cmap='coolwarm', annot=True)
+    plt.title(title)
+    plt.show()
+
 def displayCrosstab(
     X: pd.DataFrame,
     categories: dict[dict],
@@ -311,4 +331,87 @@ def displayGroupedBoxplot(
 ):
 
     renameCategories(X, categories).boxplot(column=columns, by=groupby)
+    plt.show()
+
+def displayParetoDiagram(X: pd.DataFrame, title: str):
+    """Display Pareto Diagram for a DataFrame
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame to work on
+    title: str
+        The title of the graph
+    """
+
+    acp = PCA()
+    Xacp = acp.fit(X).transform(X)
+
+    y = list(acp.explained_variance_ratio_)
+    x = range(len(y))
+    ycum = np.cumsum(y)
+
+    plt.bar(x, y)
+    plt.plot(x, ycum, "-r")
+
+    plt.xlabel("Number of factors (or eigenvectors)")
+    plt.ylabel("Explained variances and cumulative explained variance")
+    plt.title(title)
+
+    plt.show()
+
+def displayPopulationInFirstMainComponents(X: pd.DataFrame):
+    """Displays data in the plane of the first two main PCA components
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        The DataFrame to work on
+    """
+
+    acp = PCA()
+    Xacp = acp.fit(X).transform(X)
+
+    plt.scatter(Xacp[:, 0], Xacp[:, 1])
+    for i, label in enumerate(X.index):
+        plt.annotate(label, (Xacp[i,0], Xacp[i,1]))
+
+    plt.xlabel("Main component 1")
+    plt.ylabel("Main component 2")
+    plt.title("Population in the plane of first two main components")
+    plt.show()
+
+def displayCorrelationCircle(X: pd.DataFrame):
+    # corvar est de dimension (n,2) : contient dans la colonne 0 : la corrélation entre la composante principale 1 et les variables de départ 
+    # et dans la colonne 1 la corrélation entre la composante principale 2 et les variables de départ
+
+    acp = PCA()
+    Xacp = acp.fit(X).transform(X)
+    p = X.shape[1]
+
+    corvar = np.zeros((p,2))
+
+    for i in range(p):
+        for j in range(2):
+            corvar[i,j] = np.corrcoef(X.iloc[:,i], Xacp[:,j])[0,1]
+
+    # Cercle des corrélations
+    fig, axes = plt.subplots(figsize=(8,8))
+    axes.set_xlim(-1,1)
+    axes.set_ylim(-1,1)
+
+    # On ajoute les axes
+    plt.plot([-1,1],[0,0],color='silver',linestyle='-',linewidth=1)
+    plt.plot([0,0],[-1,1],color='silver',linestyle='-',linewidth=1)
+    # On ajoute un cercle
+    cercle = plt.Circle((0,0),1,color='blue',fill=False)
+    axes.add_artist(cercle)
+    plt.xlabel("Main component 1")
+    plt.ylabel("Main component 2")
+    plt.title('Correlation circle')
+    plt.scatter(corvar[:,0],corvar[:,1])
+    #affichage des étiquettes (noms des variables)
+    for j in range(p):
+        plt.annotate(X.columns[j],(corvar[j,0],corvar[j,1]))
+
     plt.show()
