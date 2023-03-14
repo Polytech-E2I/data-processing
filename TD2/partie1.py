@@ -8,12 +8,6 @@ libdir = op.join(op.dirname(op.dirname(op.abspath(__file__))), "TDlib")
 sys.path.append(libdir)
 import TDlib as td
 
-import matplotlib.pyplot as plt
-import pandas as pd
-from pprint import pprint
-import seaborn
-import numpy as np
-
 #%%
 # Import data
 
