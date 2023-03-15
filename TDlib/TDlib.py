@@ -52,18 +52,38 @@ def prettyPrintDataframe(X: pd.DataFrame):
     printprefix("Category variables :")
     pprint(Xcat)
 
-def printMeanAndVar(X: pd.DataFrame):
+def printMeanAndVar(X: pd.DataFrame, groupby: str = None):
     Xnum = separateNumAndCat(X)['Xnum']
 
-    printprefix("Means of the numerical variables :")
-    print(Xnum.mean().to_string())
-    printprefix("Variances of the numerical variables :")
-    print(Xnum.var().to_string())
+    mean, var = 0, 0
+    string = ""
 
-def displayBoxplot(X: pd.DataFrame):
+    if groupby == None:
+        mean = Xnum.mean()
+        var  = Xnum.var()
+    else:
+        Xnum[groupby] = X[groupby].astype("category")
+
+        mean = Xnum.groupby(groupby).mean()
+        var  = Xnum.groupby(groupby).var()
+
+        string = ", grouped by {}".format(groupby)
+
+    printprefix("Means of the numerical variables{} :".format(string))
+    print(mean.to_string())
+    printprefix("Variances of the numerical variables{} :".format(string))
+    print(var.to_string())
+
+def displayBoxplot(X: pd.DataFrame, groupby: str = None):
     Xnum = separateNumAndCat(X)['Xnum']
 
-    Xnum.boxplot()
+    if groupby == None:
+        Xnum.boxplot()
+    else:
+        Xnum[groupby] = X[groupby].astype("category")
+
+        Xnum.boxplot(by=groupby)
+
     plt.ylabel("Values")
     plt.title("Spread of numerical variables")
 

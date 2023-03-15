@@ -1,11 +1,25 @@
+#!/usr/bin/python
+
 #%%
-from sklearn import datasets
+# Import modules
+import sys
+import os.path as op
+libdir = op.join(op.dirname(op.dirname(op.abspath(__file__))), "TDlib")
+sys.path.append(libdir)
+import TDlib as td
+
+#%%
 from sklearn import preprocessing
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import pandas as pd
 from pprint import pprint
 import matplotlib.pyplot as plt
 import numpy as np
+
+# %%
+# Import data
+
+from sklearn import datasets
 
 iris = datasets.load_iris()
 
@@ -22,13 +36,14 @@ p = X.shape[1]
 
 #%%
 ## 2
-X.groupby('Group').mean()
-X.groupby('Group').var()
-X.boxplot(by='Group')
-plt.suptitle("Répartition des mesures")
-plt.show
+
+td.printMeanAndVar(X, "Group")
+
+td.displayBoxplot(X, "Group")
+
 #%%
 ## 3
+
 pd.plotting.scatter_matrix(X.iloc[:,0:4], c=X['Group'])
 plt.suptitle("Nuage de points 2 à 2")
 plt.show()
