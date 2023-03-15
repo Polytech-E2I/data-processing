@@ -1,11 +1,3 @@
-#%%
-import matplotlib.pyplot as plt
-import pandas as pd
-import os.path as op
-from pprint import pprint
-import seaborn
-import numpy as np
-
 #!/usr/bin/python
 
 #%%
@@ -44,10 +36,10 @@ td.displayCovarianceMatrix(X, "Covariance matrix of the data")
 
 #%%
 ## 4. Calculer les corrélations entre les variables.
-from sklearn.decomposition import PCA
-acp = PCA()
-Xacp = acp.fit(X).transform(X)
-print(Xacp)
+# from sklearn.decomposition import PCA
+# acp = PCA()
+# Xacp = acp.fit(X).transform(X)
+# print(Xacp)
 
 #%%
 ## 5. Utiliser une représentation graphique pour visualiser les coefficients de corrélations
