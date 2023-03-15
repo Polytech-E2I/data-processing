@@ -7,14 +7,7 @@ import os.path as op
 libdir = op.join(op.dirname(op.dirname(op.abspath(__file__))), "TDlib")
 sys.path.append(libdir)
 import TDlib as td
-
-#%%
-from sklearn import preprocessing
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import pandas as pd
-from pprint import pprint
-import matplotlib.pyplot as plt
-import numpy as np
 
 # %%
 # Import data
@@ -44,57 +37,17 @@ td.displayBoxplot(X, "Group")
 #%%
 ## 3
 
-pd.plotting.scatter_matrix(X.iloc[:,0:4], c=X['Group'])
-plt.suptitle("Nuage de points 2 à 2")
-plt.show()
+td.displayScatterMatrix(X, "Scatter matrix grouped by species", "Group")
 
 # %%
 ## 4
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-lda = LinearDiscriminantAnalysis()
-coord_lda = lda.fit_transform(X.iloc[:,0:4], X['Group'])
 
-plt.scatter(
-    coord_lda[:,0], coord_lda[:,1],
-    c=X['Group'], label=iris.target_names
-)
-plt.legend()
-plt.xlabel("Composante discriminante 1")
-plt.ylabel("Composante discriminante 2")
-plt.title("Individus dans le plan des CP1 et CP2")
-plt.show()
+td.displayPopulationInFirstDiscriminantComponents(X, "Group", iris.target_names)
 
 # %%
 ## 5
-# corvar est de dimension (n,2) : contient dans la colonne 0 : la corrélation entre la composante principale 1 et les variables de départ 
-# et dans la colonne 1 la corrélation entre la composante principale 2 et les variables de départ
 
-corvar = np.zeros((p,2))
-
-for i in range(p):
-    for j in range(2):
-        corvar[i,j] = np.corrcoef(X.iloc[:,i], coord_lda[:,j])[0,1]
-
-# Cercle des corrélations
-fig, axes = plt.subplots(figsize=(8,8))
-axes.set_xlim(-1,1)
-axes.set_ylim(-1,1)
-
-# On ajoute les axes
-plt.plot([-1,1],[0,0],color='silver',linestyle='-',linewidth=1)
-plt.plot([0,0],[-1,1],color='silver',linestyle='-',linewidth=1)
-# On ajoute un cercle
-cercle = plt.Circle((0,0),1,color='blue',fill=False)
-axes.add_artist(cercle)
-plt.xlabel("Composante discriminante 1")
-plt.ylabel("Composante discriminante 2")
-plt.title('Cercle des corrélations')
-plt.scatter(corvar[:,0],corvar[:,1])
-#affichage des étiquettes (noms des variables)
-for j in range(p):
-  plt.annotate(X.columns[j],(corvar[j,0],corvar[j,1]))
-
-plt.show()
+td.displayLDACorrelationCircle(X, 'Group')
 
 # %%
 # Prochaine fois : lda.predict

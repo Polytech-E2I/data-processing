@@ -7,6 +7,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -190,7 +191,7 @@ def displayTwoColumnScatter(
 ):
     """Displays a scatter plot of two columns in the DataFrame.
 
-    Parameters
+^    Parameters
     ----------
     df : pd.DataFrame
         The DataFrame from which the columns will be used
@@ -213,7 +214,7 @@ def displayTwoColumnScatter(
 
     plt.show()
 
-def displayScatterMatrix(X: pd.DataFrame, title: str):
+def displayScatterMatrix(X: pd.DataFrame, title: str, column: str=None):
     """Displays a scatter matrix across all of the DataFrame's columns
 
     Parameters
@@ -226,7 +227,11 @@ def displayScatterMatrix(X: pd.DataFrame, title: str):
 
     Xnum = separateNumAndCat(X)['Xnum']
 
-    pd.plotting.scatter_matrix(Xnum)
+    if column != None:
+        Xnum[column] = X[column].astype('category')
+        pd.plotting.scatter_matrix(Xnum, c=Xnum[column])
+    else:
+        pd.plotting.scatter_matrix(Xnum)
 
     plt.suptitle(title)
 
@@ -471,4 +476,62 @@ def totalVariance(X: pd.DataFrame, center: bool = False) -> float:
     Xacp = acp.fit(Xcr).transform(Xcr)
 
     return acp.explained_variance_.sum()    # First option
-    # return X.var().sum()                  # Second option, NOT GOOD IF CENTERED !!
+    # return X.var().sum()                  # Second option, NOT GOOD IF
+    # CENTERED !!
+
+def displayPopulationInFirstDiscriminantComponents(
+    X: pd.DataFrame,
+    column: str,
+    labels: list[str],
+    center: bool = False
+):
+
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(X, X[column])
+
+    plt.scatter(
+        coord_lda[:,0], coord_lda[:,1],
+        c=X[column], label=labels
+    )
+    plt.legend()
+    plt.xlabel("Discriminant Component 1")
+    plt.ylabel("Discriminant Component 2")
+    plt.title("Population in the plane of first two discriminant components")
+    plt.show()
+
+def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
+    # corvar est de dimension (n,2) : contient dans la colonne 0 : la corrélation entre la composante principale 1 et les variables de départ 
+    # et dans la colonne 1 la corrélation entre la composante principale 2 et les variables de départ
+
+    p = X.shape[1]
+
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(X, X[column])
+
+    corvar = np.zeros((p,2))
+
+    for i in range(p):
+        for j in range(2):
+            corvar[i,j] = np.corrcoef(X.iloc[:,i], coord_lda[:,j])[0,1]
+
+    # Cercle des corrélations
+    fig, axes = plt.subplots(figsize=(8,8))
+    axes.set_xlim(-1,1)
+    axes.set_ylim(-1,1)
+
+    # On ajoute les axes
+    plt.plot([-1,1],[0,0],color='silver',linestyle='-',linewidth=1)
+    plt.plot([0,0],[-1,1],color='silver',linestyle='-',linewidth=1)
+    # On ajoute un cercle
+    cercle = plt.Circle((0,0),1,color='blue',fill=False)
+    axes.add_artist(cercle)
+    plt.xlabel("Composante discriminante 1")
+    plt.ylabel("Composante discriminante 2")
+    plt.title('Cercle des corrélations')
+    plt.scatter(corvar[:,0],corvar[:,1])
+    #affichage des étiquettes (noms des variables)
+    for j in range(p):
+        plt.annotate(X.columns[j],(corvar[j,0],corvar[j,1]))
+
+    plt.show()
+
