@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -334,7 +335,7 @@ def displayGroupedBoxplot(
     renameCategories(X, categories).boxplot(column=columns, by=groupby)
     plt.show()
 
-def displayParetoDiagram(X: pd.DataFrame, title: str):
+def displayParetoDiagram(X: pd.DataFrame, title: str, center: bool = False):
     """Display Pareto Diagram for a DataFrame
 
     Parameters
@@ -343,10 +344,18 @@ def displayParetoDiagram(X: pd.DataFrame, title: str):
         The DataFrame to work on
     title: str
         The title of the graph
+    center: bool
+        Wether to center and reduce the data beforehand or not
     """
 
     acp = PCA()
-    Xacp = acp.fit(X).transform(X)
+
+    if center:
+        Xcr = scale(X, with_mean=True, with_std=True)
+    else:
+        Xcr = X
+
+    Xacp = acp.fit(Xcr).transform(Xcr)
 
     y = list(acp.explained_variance_ratio_)
     x = range(len(y))
@@ -361,7 +370,7 @@ def displayParetoDiagram(X: pd.DataFrame, title: str):
 
     plt.show()
 
-def displayPopulationInFirstMainComponents(X: pd.DataFrame):
+def displayPopulationInFirstMainComponents(X: pd.DataFrame, center: bool = False):
     """Displays data in the plane of the first two main PCA components
 
     Parameters
@@ -371,7 +380,13 @@ def displayPopulationInFirstMainComponents(X: pd.DataFrame):
     """
 
     acp = PCA()
-    Xacp = acp.fit(X).transform(X)
+
+    if center:
+        Xcr = scale(X, with_mean=True, with_std=True)
+    else:
+        Xcr = X
+
+    Xacp = acp.fit(Xcr).transform(Xcr)
 
     plt.scatter(Xacp[:, 0], Xacp[:, 1])
     for i, label in enumerate(X.index):
@@ -382,12 +397,19 @@ def displayPopulationInFirstMainComponents(X: pd.DataFrame):
     plt.title("Population in the plane of first two main components")
     plt.show()
 
-def displayCorrelationCircle(X: pd.DataFrame):
+def displayCorrelationCircle(X: pd.DataFrame, center: bool = False):
     # corvar est de dimension (n,2) : contient dans la colonne 0 : la corrélation entre la composante principale 1 et les variables de départ 
     # et dans la colonne 1 la corrélation entre la composante principale 2 et les variables de départ
 
     acp = PCA()
-    Xacp = acp.fit(X).transform(X)
+
+    if center:
+        Xcr = scale(X, with_mean=True, with_std=True)
+    else:
+        Xcr = X
+
+    Xacp = acp.fit(Xcr).transform(Xcr)
+
     p = X.shape[1]
 
     corvar = np.zeros((p,2))
@@ -417,10 +439,16 @@ def displayCorrelationCircle(X: pd.DataFrame):
 
     plt.show()
 
-def totalVariance(X: pd.DataFrame) -> float:
+def totalVariance(X: pd.DataFrame, center: bool = False) -> float:
 
     acp = PCA()
-    Xacp = acp.fit(X).transform(X)
+
+    if center:
+        Xcr = scale(X, with_mean=True, with_std=True)
+    else:
+        Xcr = X
+
+    Xacp = acp.fit(Xcr).transform(Xcr)
 
     return acp.explained_variance_.sum()    # First option
-    # return X.var().sum()                  # Second option
+    # return X.var().sum()                  # Second option, NOT GOOD IF CENTERED !!
