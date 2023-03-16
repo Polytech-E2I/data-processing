@@ -7,7 +7,7 @@ import os.path as op
 libdir = op.dirname(op.dirname(op.abspath(__file__)))
 sys.path.append(libdir)
 import TDlib as td
-import pandas as pd
+from pprint import pprint
 
 # %%
 # Import data
@@ -19,3 +19,10 @@ X = td.excelToPandas(
     0,
     ['C', 'PRONO']
 )
+
+#%%
+# 1/ Présenter le boxplot de chaque variable en tenant compte de la variable Prono
+
+td.displayBoxplot(X, 'PRONO', sharey=False)
+
+# %%

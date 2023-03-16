@@ -75,7 +75,7 @@ def printMeanAndVar(X: pd.DataFrame, groupby: str = None):
     printprefix("Variances of the numerical variables{} :".format(string))
     print(var.to_string())
 
-def displayBoxplot(X: pd.DataFrame, groupby: str = None):
+def displayBoxplot(X: pd.DataFrame, groupby: str = None, sharey: bool = True):
     Xnum = separateNumAndCat(X)['Xnum']
 
     if groupby == None:
@@ -83,7 +83,7 @@ def displayBoxplot(X: pd.DataFrame, groupby: str = None):
     else:
         Xnum[groupby] = X[groupby].astype("category")
 
-        Xnum.boxplot(by=groupby)
+        Xnum.boxplot(by=groupby, sharey=sharey)
 
     plt.ylabel("Values")
     plt.title("Spread of numerical variables")
