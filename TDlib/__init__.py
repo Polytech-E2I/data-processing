@@ -395,7 +395,12 @@ def displayParetoDiagram(X: pd.DataFrame, title: str, center: bool = False):
 
     plt.show()
 
-def displayPopulationInFirstMainComponents(X: pd.DataFrame, center: bool = False):
+def displayPopulationInFirstMainComponents(
+    X: pd.DataFrame,
+    column: str = "",
+    labels: list[str] = [],
+    center: bool = False
+):
     """Displays data in the plane of the first two main PCA components
 
     Parameters
@@ -413,9 +418,18 @@ def displayPopulationInFirstMainComponents(X: pd.DataFrame, center: bool = False
 
     Xacp = acp.fit(Xcr).transform(Xcr)
 
-    plt.scatter(Xacp[:, 0], Xacp[:, 1])
-    for i, label in enumerate(X.index):
-        plt.annotate(label, (Xacp[i,0], Xacp[i,1]))
+    if column == "":
+        plt.scatter(Xacp[:, 0], Xacp[:, 1])
+    else:
+        plt.scatter(
+            Xacp[:, 0],
+            Xacp[:, 1],
+            c=X[column],
+            label=labels
+        )
+
+#    for i, label in enumerate(X.index):
+#        plt.annotate(label, (Xacp[i,0], Xacp[i,1]))
 
     plt.xlabel("Main component 1")
     plt.ylabel("Main component 2")
