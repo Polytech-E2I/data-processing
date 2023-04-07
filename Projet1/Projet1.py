@@ -54,6 +54,12 @@ td.displayConfusionMatrix(X1, "Valid")
 
 print("On observe que la prédiction LDA est capable de prédire de manière assez fiable si un pouls est correct. Pour les artefact, c'est moins évident.")
 
+# Accuracy : accuracy_score
+# Precision : precision_score
+# Rappel/Sensibilité : recall_score
+# Spécificité : specificity (https://stackoverflow.com/questions/33275461/specificity-in-scikit-learn)
+# F-mesure : f1_score
+
 # %%
 
 
