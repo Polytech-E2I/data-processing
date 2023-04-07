@@ -8,6 +8,7 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -549,3 +550,15 @@ def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
 
     plt.show()
 
+def displayConfusionMatrix(X: pd.DataFrame, column: str):
+
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(X.loc[:, X.columns!=column], X[column])
+
+    true = X[column]
+    predict = lda.predict(X.loc[:, X.columns!=column])
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    disp = ConfusionMatrixDisplay(confmatrix_norm)
+    disp.plot()

@@ -48,3 +48,21 @@ td.displayPopulationInFirstMainComponents(X1, "Valid", ["Artefact", "True pulse"
 
 print("Les groupes sont relativements distincts et bien \"patatoïdes\", on peut donc en apprendre des Gaussiennes")
 
+
+#%%
+td.displayConfusionMatrix(X1, "Valid")
+
+print("On observe que la prédiction LDA est capable de prédire de manière assez fiable si un pouls est correct. Pour les artefact, c'est moins évident.")
+
+# %%
+
+
+
+# nb = GaussianNB()
+# nb.fit(data1[colonnes de data], data1[états connus])
+# nb.predict(data2[colonnes de data])
+
+# => Matrice de confusion entre nb.predict et data2[états connnus]
+
+# => Refaire avec les autres classifiers + autres datas
+# ====> POSER LES TESTS CAR IL Y EN A BCP
