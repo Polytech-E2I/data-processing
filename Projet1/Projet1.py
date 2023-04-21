@@ -233,7 +233,7 @@ from prettytable import DOUBLE_BORDER
 table = PrettyTable()
 table.set_style(DOUBLE_BORDER)
 
-table.field_names = ["", "LDA", "QDA", "GNB", "KNC"]
+table.field_names = ["Confusion Matrix Score", "LDA", "QDA", "GNB", "KNC"]
 table.add_row([
     "Accuracy",
     round(accuracy_score(tp_lda[0], tp_lda[1]), 2),
