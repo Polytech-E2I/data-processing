@@ -514,6 +514,28 @@ def displayPopulationInFirstDiscriminantComponents(
     plt.title("Population in the plane of first two discriminant components")
     plt.show()
 
+def displayPopulationInFirstAndRandomDiscriminantComponents(
+    X: pd.DataFrame,
+    column: str,
+    labels: list[str],
+    center: bool = False
+):
+
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(X, X[column])
+
+    rand = np.random.randn(int(np.shape(coord_lda)[0]))
+
+    plt.scatter(
+        coord_lda[:,0], rand,
+        c=X[column], label=labels
+    )
+    plt.legend()
+    plt.xlabel("Discriminant Component 1")
+    plt.ylabel("Random Component")
+    plt.title("Population in the plane of first discriminant component and random value")
+    plt.show()
+
 def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
     # corvar est de dimension (n,2) : contient dans la colonne 0 : la corrélation entre la composante principale 1 et les variables de départ 
     # et dans la colonne 1 la corrélation entre la composante principale 2 et les variables de départ
@@ -562,3 +584,8 @@ def displayConfusionMatrix(X: pd.DataFrame, column: str):
 
     disp = ConfusionMatrixDisplay(confmatrix_norm)
     disp.plot()
+
+def specificity_score(y_true, y_pred) -> float:
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+
+    return tn / (tn+fp)
