@@ -92,12 +92,27 @@ td.displayBoxplot(td.renameCategories(X2, categories), "Valid", False)
 td.displayBoxplot(td.renameCategories(X3, categories), "Valid", False)
 
 #%%
-td.displayParetoDiagram(X1, "Pareto diagram")
+# CORRELATION MATRIX
 
+td.displayCorrelationMatrix(X1, "Matrice de corrélation data1")
+
+#%%
+# SCATTER MATRIX
+
+td.displayScatterMatrix(X1, "")
+
+print("Aucune intercorrélation")
+
+#%%
+# PARETO DIAGRAM
+
+td.displayParetoDiagram(X1, "Pareto diagram")
 print("On observe que deux composantes permettent de conserver environ 70% de l'information")
 
 
 # %%
+# ACP
+
 td.displayPopulationInFirstMainComponents(X1, "Valid", ["Artefact", "True pulse"])
 
 print("Les groupes sont relativements distincts et bien \"patatoïdes\", on peut donc en apprendre des Gaussiennes")
