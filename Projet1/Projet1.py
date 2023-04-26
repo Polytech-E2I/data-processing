@@ -1,4 +1,5 @@
 #%%
+# PYTHON SETUP
 import os.path as op
 import sys
 libdir = op.dirname(op.dirname(op.abspath(__file__)))
@@ -12,13 +13,14 @@ from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 import matplotlib.pyplot as plt
 import numpy as np
 
-data = scipy.io.loadmat('data.mat')
-
 #%%
+# DATA FORMATTING
 
 # data est un dictionnaire contenant 3 jeux de données data1, data2, data3
 # data1 est un tableau contenant un tableau par forme d'onde
 # Chacun de ces tableaux contient 9 paramètres extraits de la forme d'onde
+
+data = scipy.io.loadmat('data.mat')
 
 data1 = data['data1']
 data1_filtered = data1[:, 4:] # Seuls les paramètres 5-9 nous intéressent
@@ -50,18 +52,44 @@ categories = {
     "Valid": {1: "Artefact", 2: "True pulse"}
 }
 
-# print(data1_class)
-# pprint(X1)
-
+#%%
+# DATA1 DESCRIBE
+print("---- data1 ----")
 nb_artef = len([artef for artef in data1_class if artef == 1])
 nb_valid = len([valid for valid in data1_class if valid == 2])
-
 print(f"Nombre d'artefacts : {nb_artef}")
 print(f"Nombre de pouls : {nb_valid}")
 print(X1.describe())
 
 #%%
+# DATA2 DESCRIBE
+print("---- data2 ----")
+nb_artef = len([artef for artef in data2_class if artef == 1])
+nb_valid = len([valid for valid in data2_class if valid == 2])
+print(f"Nombre d'artefacts : {nb_artef}")
+print(f"Nombre de pouls : {nb_valid}")
+print(X2.describe())
+
+#%%
+# DATA3 DESCRIBE
+print("---- data3 ----")
+nb_artef = len([artef for artef in data3_class if artef == 1])
+nb_valid = len([valid for valid in data3_class if valid == 2])
+print(f"Nombre d'artefacts : {nb_artef}")
+print(f"Nombre de pouls : {nb_valid}")
+print(X3.describe())
+
+#%%
+# DATA1 BOXPLOT
 td.displayBoxplot(td.renameCategories(X1, categories), "Valid", False)
+
+#%%
+# DATA2 BOXPLOT
+td.displayBoxplot(td.renameCategories(X2, categories), "Valid", False)
+
+#%%
+# DATA3 BOXPLOT
+td.displayBoxplot(td.renameCategories(X3, categories), "Valid", False)
 
 #%%
 td.displayParetoDiagram(X1, "Pareto diagram")
