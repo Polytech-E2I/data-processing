@@ -118,16 +118,22 @@ td.displayPopulationInFirstMainComponents(X1, "Valid", ["Artefact", "True pulse"
 print("Les groupes sont relativements distincts et bien \"patatoïdes\", on peut donc en apprendre des Gaussiennes")
 
 #%%
-
+# ACP CORRELATION CIRCLE
 td.displayCorrelationCircle(X1)
 
 #%%
+# ALD
 
 td.displayPopulationInFirstAndRandomDiscriminantComponents(
     X1,
     'Valid',
     ["Artefact", "True Pulse"]
 )
+
+#%%
+# ALD CORRELATION CIRCLE
+
+td.displayLDACorrelationCircle(X1, "Valid")
 
 #%%
 ###### CLASSIFIER 1 : LDA
