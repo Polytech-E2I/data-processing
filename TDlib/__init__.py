@@ -422,12 +422,12 @@ def displayPopulationInFirstMainComponents(
     if column == "":
         plt.scatter(Xacp[:, 0], Xacp[:, 1])
     else:
-        plt.scatter(
+        scatter = plt.scatter(
             Xacp[:, 0],
             Xacp[:, 1],
-            c=X[column],
-            label=labels
+            c=X[column]
         )
+        plt.legend(handles=scatter.legend_elements()[0], labels=labels)
 
 #    for i, label in enumerate(X.index):
 #        plt.annotate(label, (Xacp[i,0], Xacp[i,1]))
@@ -526,11 +526,13 @@ def displayPopulationInFirstAndRandomDiscriminantComponents(
 
     rand = np.random.randn(int(np.shape(coord_lda)[0]))
 
-    plt.scatter(
-        coord_lda[:,0], rand,
-        c=X[column], label=labels
+    scatter = plt.scatter(
+        coord_lda[:,0],
+        rand,
+        c=X[column]
     )
-    plt.legend()
+    plt.legend(handles=scatter.legend_elements()[0], labels=labels)
+
     plt.xlabel("Discriminant Component 1")
     plt.ylabel("Random Component")
     plt.title("Population in the plane of first discriminant component and random value")
@@ -544,6 +546,14 @@ def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
 
     lda = LinearDiscriminantAnalysis()
     coord_lda = lda.fit_transform(X, X[column])
+    ylabel = "Composante discriminante 2"
+
+    if coord_lda.shape[1] <= 1:
+        # for i in range(coord_lda.shape[0]):
+        #     coord_lda[i] = np.append(coord_lda[i], np.random.randn())
+        rand = np.random.randn(int(np.shape(coord_lda)[0]))
+        coord_lda = np.append(coord_lda, rand.reshape(-1, 1), axis=1)
+        ylabel = "Composante aléatoire"
 
     corvar = np.zeros((p,2))
 
@@ -563,7 +573,7 @@ def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
     cercle = plt.Circle((0,0),1,color='blue',fill=False)
     axes.add_artist(cercle)
     plt.xlabel("Composante discriminante 1")
-    plt.ylabel("Composante discriminante 2")
+    plt.ylabel(ylabel)
     plt.title('Cercle des corrélations')
     plt.scatter(corvar[:,0],corvar[:,1])
     #affichage des étiquettes (noms des variables)
