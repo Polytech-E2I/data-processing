@@ -20,7 +20,10 @@ import numpy as np
 # data1 est un tableau contenant un tableau par forme d'onde
 # Chacun de ces tableaux contient 9 paramètres extraits de la forme d'onde
 
-data = scipy.io.loadmat('data.mat')
+try:
+    data = scipy.io.loadmat('data.mat')
+except FileNotFoundError:
+    data = scipy.io.loadmat('Projet1/data.mat')
 
 data1 = data['data1']
 data1_filtered = data1[:, 4:] # Seuls les paramètres 5-9 nous intéressent
@@ -332,84 +335,29 @@ print(table)
 
 column = 'Valid'
 
-######### LDA
-lda = LinearDiscriminantAnalysis()
-coord_lda = lda.fit_transform(X1.loc[:, X1.columns!=column], X1[column])
+td.plot_roc_curves(
+    X1,
+    X1,
+    column,
+    "Courbes ROC\nFit : data1  /  Valid : data1"
+)
+td.displayConfusionMatrices(X1, X1, "Valid")
 
-true = X3[column]
-predict = lda.predict_proba(X3.loc[:, X3.columns!=column])[:, 1]
+#%%
+td.plot_roc_curves(
+    X1,
+    X2,
+    column,
+    "Courbes ROC\nFit : data1  /  Valid : data2"
+)
+td.displayConfusionMatrices(X1, X2, "Valid")
 
-from sklearn.metrics import roc_curve
-
-plt.figure()
-
-FP, TP, TH = roc_curve(true, predict, pos_label=2)
-plt.plot(FP, TP, label="LDA")
-
-######### QDA
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
-qda = QuadraticDiscriminantAnalysis()
-coord_qda = qda.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X3[column]
-predict = qda.predict_proba(X3.loc[:, X3.columns!=column])[:, 1]
-
-FP, TP, TH = roc_curve(true, predict, pos_label=2)
-plt.plot(FP, TP, label="QDA")
-
-######### GNB
-from sklearn.naive_bayes import GaussianNB
-
-gnb = GaussianNB()
-coord_gnb = gnb.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X3[column]
-predict = gnb.predict_proba(X3.loc[:, X3.columns!=column])[:, 1]
-
-FP, TP, TH = roc_curve(true, predict, pos_label=2)
-plt.plot(FP, TP, label="GNB")
-
-
-######### KNC
-from sklearn.neighbors import KNeighborsClassifier
-
-knc = KNeighborsClassifier()
-coord_gnb = knc.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X3[column]
-predict = knc.predict_proba(X3.loc[:, X3.columns!=column])[:, 1]
-
-FP, TP, TH = roc_curve(true, predict, pos_label=2)
-plt.plot(FP, TP, label="KNC")
-
-######### Random
-x_values = np.linspace(0, 1, X1.shape[0])
-plt.plot(x_values, x_values, label="Random classifier")
-
-######### Ideal
-ideal_classifier = np.ones(X1.shape[0])
-ideal_classifier[0] = 0
-plt.plot(x_values, ideal_classifier, label="Ideal classifier")
-
-plt.xlabel("Probabilité de fausse alarme")
-plt.ylabel("Probabilité de bonne détection")
-plt.legend()
-plt.show()
-
-
+#%%
+td.plot_roc_curves(
+    X1,
+    X3,
+    column,
+    "Courbes ROC\nFit : data1  /  Valid : data3"
+)
+td.displayConfusionMatrices(X1, X3, "Valid")
 # %%
-
-print(X1)
-
-#%%
-print(X2)
-
-#%%
-print(X3)
-
-# %%
-#%%
-# NOTEZ
-
-# Courbes ROC !!!

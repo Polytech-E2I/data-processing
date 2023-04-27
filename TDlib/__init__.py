@@ -9,6 +9,12 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.metrics import roc_curve
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+
+
 
 def printprefix(message: str):
     PREFIX="  ### "
@@ -582,20 +588,179 @@ def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
 
     plt.show()
 
-def displayConfusionMatrix(X: pd.DataFrame, column: str):
+def displayConfusionMatrix(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "Confusion matrix"
+):
 
     lda = LinearDiscriminantAnalysis()
-    coord_lda = lda.fit_transform(X.loc[:, X.columns!=column], X[column])
+    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
 
-    true = X[column]
-    predict = lda.predict(X.loc[:, X.columns!=column])
+    true = Xtest[column]
+    predict = lda.predict(Xtest.loc[:, Xtest.columns!=column])
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
     disp = ConfusionMatrixDisplay(confmatrix_norm)
+    plt.title(title)
     disp.plot()
 
 def specificity_score(y_true, y_pred) -> float:
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
 
     return tn / (tn+fp)
+
+def plot_roc_curves(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "Classifier ROC curves comparison"
+):
+
+    plt.figure()
+
+    ######### LDA
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = lda.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+
+    FP, TP, TH = roc_curve(true, predict, pos_label=2)
+    plt.plot(FP, TP, label="LDA")
+
+    ######### QDA
+    qda = QuadraticDiscriminantAnalysis()
+    coord_qda = qda.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = qda.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+
+    FP, TP, TH = roc_curve(true, predict, pos_label=2)
+    plt.plot(FP, TP, label="QDA")
+
+    ######### GNB
+    gnb = GaussianNB()
+    coord_gnb = gnb.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = gnb.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+
+    FP, TP, TH = roc_curve(true, predict, pos_label=2)
+    plt.plot(FP, TP, label="GNB")
+
+    ######### KNC
+    knc = KNeighborsClassifier()
+    coord_gnb = knc.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = knc.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+
+    FP, TP, TH = roc_curve(true, predict, pos_label=2)
+    plt.plot(FP, TP, label="KNC")
+
+    ######### Random
+    x_values = np.linspace(0, 1, Xfit.shape[0])
+    plt.plot(x_values, x_values, label="Classifieur aléatoire")
+
+    ######### Ideal
+    ideal_classifier = np.ones(Xfit.shape[0])
+    ideal_classifier[0] = 0
+    plt.plot(x_values, ideal_classifier, label="Classifieur idéal")
+
+    plt.xlabel("Probabilité de fausse alarme (FP)")
+    plt.ylabel("Probabilité de bonne détection (TP)")
+    plt.legend()
+    plt.title(title)
+    plt.show()
+
+def displayConfusionMatrices(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "Confusion matrices"
+):
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2)
+
+    ######### LDA
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = lda.predict(Xtest.loc[:, Xtest.columns!=column])
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    sns.heatmap(
+        confmatrix_norm,
+        cmap="coolwarm",
+        annot=True,
+        ax=ax1
+    )
+    ax1.set_xlabel("Predicted label")
+    ax1.set_ylabel("True label")
+    ax1.set_title("LDA")
+
+    ######### QDA
+    qda = QuadraticDiscriminantAnalysis()
+    coord_qda = qda.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = qda.predict(Xtest.loc[:, Xtest.columns!=column])
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    sns.heatmap(
+        confmatrix_norm,
+        cmap="coolwarm",
+        annot=True,
+        ax=ax2
+    )
+    ax2.set_xlabel("Predicted label")
+    ax2.set_ylabel("True label")
+    ax2.set_title("QDA")
+
+    ######### GNB
+    gnb = GaussianNB()
+    coord_gnb = gnb.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = gnb.predict(Xtest.loc[:, Xtest.columns!=column])
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    sns.heatmap(
+        confmatrix_norm,
+        cmap="coolwarm",
+        annot=True,
+        ax=ax3
+    )
+    ax3.set_xlabel("Predicted label")
+    ax3.set_ylabel("True label")
+    ax3.set_title("GNB")
+
+    ######### KNC
+    knc = KNeighborsClassifier()
+    coord_gnb = knc.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+
+    true = Xtest[column]
+    predict = knc.predict(Xtest.loc[:, Xtest.columns!=column])
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    sns.heatmap(
+        confmatrix_norm,
+        cmap="coolwarm",
+        annot=True,
+        ax=ax4
+    )
+    ax4.set_xlabel("Predicted label")
+    ax4.set_ylabel("True label")
+    ax4.set_title("KNC")
+
+    plt.tight_layout()
+    plt.suptitle(title)
+    plt.show()
