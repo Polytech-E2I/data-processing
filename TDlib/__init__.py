@@ -597,11 +597,11 @@ def displayLDACorrelationCircle(X: pd.DataFrame, column: str):
 
     plt.show()
 
-def displayConfusionMatrix(
+def displayLDAConfusionMatrix(
     Xfit: pd.DataFrame,
     Xtest: pd.DataFrame,
     column: str,
-    title: str = "Confusion matrix"
+    title: str = "LDA Confusion matrix"
 ):
     x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
 
@@ -614,8 +614,74 @@ def displayConfusionMatrix(
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
     disp = ConfusionMatrixDisplay(confmatrix_norm)
-    plt.title(title)
     disp.plot()
+    plt.title(title)
+    plt.show()
+
+def displayQDAConfusionMatrix(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "QDA Confusion matrix"
+):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
+
+    qda = QuadraticDiscriminantAnalysis()
+    coord_qda = qda.fit(x_train, y_train)
+
+    true = y_test
+    predict = qda.predict(x_test)
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    disp = ConfusionMatrixDisplay(confmatrix_norm)
+    disp.plot()
+    plt.title(title)
+    plt.show()
+
+def displayGNBConfusionMatrix(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "GNB Confusion matrix"
+):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
+
+    gnb = GaussianNB()
+    coord_gnb = gnb.fit(x_train, y_train)
+
+    true = y_test
+    predict = gnb.predict(x_test)
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    disp = ConfusionMatrixDisplay(confmatrix_norm)
+    disp.plot()
+    plt.title(title)
+    plt.show()
+
+def displayKNCConfusionMatrix(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    title: str = "KNC Confusion matrix"
+):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
+
+    knc = KNeighborsClassifier()
+    coord_knc = knc.fit(x_train, y_train)
+
+    true = y_test
+    predict = knc.predict(x_test)
+
+    confmatrix_norm = confusion_matrix(true, predict, normalize='true')
+
+    disp = ConfusionMatrixDisplay(confmatrix_norm)
+    disp.plot()
+    plt.title(title)
+    plt.show()
+
+
 
 def specificity_score(y_true, y_pred) -> float:
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
@@ -890,14 +956,15 @@ def splitIfSame(
     Xfit: pd.DataFrame,
     Xtest: pd.DataFrame,
     column: str,
-    test_size: float = 0.5
+    test_size: float = 0.3
 ):
     if Xfit is Xtest:
         print("WARNING : Xfit and Xtest are the same, splitting data")
         x_train, x_test, y_train, y_test = train_test_split(
             Xfit.loc[:, Xfit.columns!=column],
             Xfit[column],
-            test_size=test_size
+            test_size=test_size,
+            shuffle=False
         )
     else:
         x_train = Xfit.loc[:, Xfit.columns!=column]

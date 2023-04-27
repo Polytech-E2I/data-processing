@@ -146,7 +146,13 @@ td.plot_roc_curves(
     "Courbes ROC\nFit : data1  /  Valid : data1"
 )
 
-td.displayConfusionMatrices(X1, X1, "Valid")
+td.displayConfusionMatrices(
+    X1,
+    X1,
+    "Valid",
+    "Fit : data1 / Valid : data1"
+
+)
 
 td.printConfusionMatrixScores(X1, X1, "Valid")
 
@@ -160,7 +166,12 @@ td.plot_roc_curves(
     "Courbes ROC\nFit : data1  /  Valid : data2"
 )
 
-td.displayConfusionMatrices(X1, X2, "Valid")
+td.displayConfusionMatrices(
+    X1,
+    X2,
+    "Valid",
+    "Fit : data1 / Valid : data2"
+)
 
 td.printConfusionMatrixScores(X1, X2, "Valid")
 
@@ -174,8 +185,22 @@ td.plot_roc_curves(
     "Courbes ROC\nFit : data1  /  Valid : data3"
 )
 
-td.displayConfusionMatrices(X1, X3, "Valid")
+td.displayConfusionMatrices(
+    X1,
+    X3,
+    "Valid",
+    "Fit : data1 / Valid : data3"
+)
 
 td.printConfusionMatrixScores(X1, X3, "Valid")
+
+# %%
+
+column = "Valid"
+
+td.displayQDAConfusionMatrix(X1, X2, column, "QDA, Fit: data1 / Valid : data2")
+td.displayQDAConfusionMatrix(X1, X3, column, "QDA, Fit: data1 / Valid : data3")
+td.displayGNBConfusionMatrix(X1, X2, column, "GNB, Fit: data1 / Valid : data2")
+td.displayGNBConfusionMatrix(X1, X3, column, "GNB, Fit: data1 / Valid : data3")
 
 # %%
