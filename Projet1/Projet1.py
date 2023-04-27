@@ -8,10 +8,6 @@ import scipy.io
 import pandas as pd
 from pprint import pprint
 import TDlib as td
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
-import matplotlib.pyplot as plt
-import numpy as np
 
 #%%
 # DATA FORMATTING
@@ -139,199 +135,7 @@ td.displayPopulationInFirstAndRandomDiscriminantComponents(
 td.displayLDACorrelationCircle(X1, "Valid")
 
 #%%
-###### CLASSIFIER 1 : LDA
-
-column = 'Valid'
-
-lda = LinearDiscriminantAnalysis()
-coord_lda = lda.fit_transform(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X1[column]
-predict = lda.predict(X1.loc[:, X1.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-print("On observe que la prédiction LDA est capable de prédire de manière assez fiable si un pouls est correct. Pour les artefact, c'est moins évident.")
-
-true = X2[column]
-predict = lda.predict(X2.loc[:, X2.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X3[column]
-predict = lda.predict(X3.loc[:, X3.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-print("Intra-sujet, prediction OK, mais inter-sujet : pas ouf")
-
-tp_lda = (true, predict)
-
-#%%
-###### CLASSIFIER 2 : QDA
-
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
-qda = QuadraticDiscriminantAnalysis()
-coord_qda = qda.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X1[column]
-predict = qda.predict(X1.loc[:, X1.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X2[column]
-predict = qda.predict(X2.loc[:, X2.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X3[column]
-predict = qda.predict(X3.loc[:, X3.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-tp_qda = (true, predict)
-
-#%%
-###### CLASSIFIER 3 : GNB
-
-from sklearn.naive_bayes import GaussianNB
-
-gnb = GaussianNB()
-coord_gnb = gnb.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X1[column]
-predict = gnb.predict(X1.loc[:, X1.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X2[column]
-predict = gnb.predict(X2.loc[:, X2.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X3[column]
-predict = gnb.predict(X3.loc[:, X3.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-tp_gnb = (true, predict)
-
-#%%
-###### CLASSIFIER 4 : KNC
-
-from sklearn.neighbors import KNeighborsClassifier
-
-knc = KNeighborsClassifier()
-coord_gnb = knc.fit(X1.loc[:, X1.columns!=column], X1[column])
-
-true = X1[column]
-predict = knc.predict(X1.loc[:, X1.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X2[column]
-predict = knc.predict(X2.loc[:, X2.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-true = X3[column]
-predict = knc.predict(X3.loc[:, X3.columns!=column])
-
-confmatrix_norm = confusion_matrix(true, predict, normalize='true')
-
-disp = ConfusionMatrixDisplay(confmatrix_norm)
-disp.plot()
-
-tp_knc = (true, predict)
-
-#%%
-###### SUMMARY
-
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import f1_score
-
-from prettytable import PrettyTable
-from prettytable import DOUBLE_BORDER
-table = PrettyTable()
-table.set_style(DOUBLE_BORDER)
-
-table.field_names = ["Confusion Matrix Score", "LDA", "QDA", "GNB", "KNC"]
-table.add_row([
-    "Accuracy",
-    round(accuracy_score(tp_lda[0], tp_lda[1]), 2),
-    round(accuracy_score(tp_qda[0], tp_qda[1]), 2),
-    round(accuracy_score(tp_gnb[0], tp_gnb[1]), 2),
-    round(accuracy_score(tp_knc[0], tp_knc[1]), 2)
-])
-table.add_row([
-    "Precision",
-    round(precision_score(tp_lda[0], tp_lda[1]), 2),
-    round(precision_score(tp_qda[0], tp_qda[1]), 2),
-    round(precision_score(tp_gnb[0], tp_gnb[1]), 2),
-    round(precision_score(tp_knc[0], tp_knc[1]), 2)
-])
-table.add_row([
-    "Recall",
-    round(recall_score(tp_lda[0], tp_lda[1]), 2),
-    round(recall_score(tp_qda[0], tp_qda[1]), 2),
-    round(recall_score(tp_gnb[0], tp_gnb[1]), 2),
-    round(recall_score(tp_knc[0], tp_knc[1]), 2)
-])
-table.add_row([
-    "Specificity",
-    round(td.specificity_score(tp_lda[0], tp_lda[1]), 2),
-    round(td.specificity_score(tp_qda[0], tp_qda[1]), 2),
-    round(td.specificity_score(tp_gnb[0], tp_gnb[1]), 2),
-    round(td.specificity_score(tp_knc[0], tp_knc[1]), 2)
-])
-table.add_row([
-    "F1",
-    round(f1_score(tp_lda[0], tp_lda[1]), 2),
-    round(f1_score(tp_qda[0], tp_qda[1]), 2),
-    round(f1_score(tp_gnb[0], tp_gnb[1]), 2),
-    round(f1_score(tp_knc[0], tp_knc[1]), 2)
-])
-
-print(table)
-
-
-#%%
+# FIT SPLIT-DATA1 TEST SPLIT-DATA1
 
 column = 'Valid'
 
@@ -341,23 +145,37 @@ td.plot_roc_curves(
     column,
     "Courbes ROC\nFit : data1  /  Valid : data1"
 )
+
 td.displayConfusionMatrices(X1, X1, "Valid")
 
+td.printConfusionMatrixScores(X1, X1, "Valid")
+
 #%%
+# FIT DATA1 TEST DATA2
+
 td.plot_roc_curves(
     X1,
     X2,
     column,
     "Courbes ROC\nFit : data1  /  Valid : data2"
 )
+
 td.displayConfusionMatrices(X1, X2, "Valid")
 
+td.printConfusionMatrixScores(X1, X2, "Valid")
+
 #%%
+# FIT DATA1 TEST DATA3
+
 td.plot_roc_curves(
     X1,
     X3,
     column,
     "Courbes ROC\nFit : data1  /  Valid : data3"
 )
+
 td.displayConfusionMatrices(X1, X3, "Valid")
+
+td.printConfusionMatrixScores(X1, X3, "Valid")
+
 # %%

@@ -10,9 +10,18 @@ from sklearn.preprocessing import scale
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
+
+from prettytable import PrettyTable
+from prettytable import DOUBLE_BORDER
 
 
 
@@ -594,12 +603,13 @@ def displayConfusionMatrix(
     column: str,
     title: str = "Confusion matrix"
 ):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
 
     lda = LinearDiscriminantAnalysis()
-    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_lda = lda.fit_transform(x_train, y_train)
 
-    true = Xtest[column]
-    predict = lda.predict(Xtest.loc[:, Xtest.columns!=column])
+    true = y_test
+    predict = lda.predict(x_test)
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
@@ -619,56 +629,71 @@ def plot_roc_curves(
     title: str = "Classifier ROC curves comparison"
 ):
 
+
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
+
     plt.figure()
 
     ######### LDA
     lda = LinearDiscriminantAnalysis()
-    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_lda = lda.fit_transform(x_train, y_train)
 
-    true = Xtest[column]
-    predict = lda.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+    true = y_test
+    predict = lda.predict_proba(x_test)[:, 1]
 
     FP, TP, TH = roc_curve(true, predict, pos_label=2)
-    plt.plot(FP, TP, label="LDA")
+    auc = roc_auc_score(true, predict)
+    plt.plot(FP, TP, label=f"LDA (AUC = {auc:.2f})")
 
     ######### QDA
     qda = QuadraticDiscriminantAnalysis()
-    coord_qda = qda.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_qda = qda.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = qda.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+    true = y_test
+    predict = qda.predict_proba(x_test)[:, 1]
 
     FP, TP, TH = roc_curve(true, predict, pos_label=2)
-    plt.plot(FP, TP, label="QDA")
+    auc = roc_auc_score(true, predict)
+    plt.plot(FP, TP, label=f"QDA (AUC = {auc:.2f})")
 
     ######### GNB
     gnb = GaussianNB()
-    coord_gnb = gnb.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_gnb = gnb.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = gnb.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+    true = y_test
+    predict = gnb.predict_proba(x_test)[:, 1]
 
     FP, TP, TH = roc_curve(true, predict, pos_label=2)
-    plt.plot(FP, TP, label="GNB")
+    auc = roc_auc_score(true, predict)
+    plt.plot(FP, TP, label=f"GNB (AUC = {auc:.2f})")
 
     ######### KNC
     knc = KNeighborsClassifier()
-    coord_gnb = knc.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_gnb = knc.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = knc.predict_proba(Xtest.loc[:, Xtest.columns!=column])[:, 1]
+    true = y_test
+    predict = knc.predict_proba(x_test)[:, 1]
 
     FP, TP, TH = roc_curve(true, predict, pos_label=2)
-    plt.plot(FP, TP, label="KNC")
+    auc = roc_auc_score(true, predict)
+    plt.plot(FP, TP, label=f"KNC (AUC = {auc:.2f})")
 
     ######### Random
     x_values = np.linspace(0, 1, Xfit.shape[0])
-    plt.plot(x_values, x_values, label="Classifieur aléatoire")
+    plt.plot(
+        x_values,
+        x_values,
+        label=f"Classifieur aléatoire (AUC = 0.50)"
+    )
 
     ######### Ideal
     ideal_classifier = np.ones(Xfit.shape[0])
     ideal_classifier[0] = 0
-    plt.plot(x_values, ideal_classifier, label="Classifieur idéal")
+    plt.plot(
+        x_values,
+        ideal_classifier,
+        label=f"Classifieur idéal (AUC = 1.00)"
+    )
 
     plt.xlabel("Probabilité de fausse alarme (FP)")
     plt.ylabel("Probabilité de bonne détection (TP)")
@@ -682,15 +707,16 @@ def displayConfusionMatrices(
     column: str,
     title: str = "Confusion matrices"
 ):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2)
 
     ######### LDA
     lda = LinearDiscriminantAnalysis()
-    coord_lda = lda.fit_transform(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_lda = lda.fit_transform(x_train, y_train)
 
-    true = Xtest[column]
-    predict = lda.predict(Xtest.loc[:, Xtest.columns!=column])
+    true = y_test
+    predict = lda.predict(x_test)
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
@@ -706,10 +732,10 @@ def displayConfusionMatrices(
 
     ######### QDA
     qda = QuadraticDiscriminantAnalysis()
-    coord_qda = qda.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_qda = qda.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = qda.predict(Xtest.loc[:, Xtest.columns!=column])
+    true = y_test
+    predict = qda.predict(x_test)
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
@@ -725,10 +751,10 @@ def displayConfusionMatrices(
 
     ######### GNB
     gnb = GaussianNB()
-    coord_gnb = gnb.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_gnb = gnb.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = gnb.predict(Xtest.loc[:, Xtest.columns!=column])
+    true = y_test
+    predict = gnb.predict(x_test)
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
@@ -744,10 +770,10 @@ def displayConfusionMatrices(
 
     ######### KNC
     knc = KNeighborsClassifier()
-    coord_gnb = knc.fit(Xfit.loc[:, Xfit.columns!=column], Xfit[column])
+    coord_gnb = knc.fit(x_train, y_train)
 
-    true = Xtest[column]
-    predict = knc.predict(Xtest.loc[:, Xtest.columns!=column])
+    true = y_test
+    predict = knc.predict(x_test)
 
     confmatrix_norm = confusion_matrix(true, predict, normalize='true')
 
@@ -764,3 +790,119 @@ def displayConfusionMatrices(
     plt.tight_layout()
     plt.suptitle(title)
     plt.show()
+
+def printConfusionMatrixScores(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str
+):
+    x_train, x_test, y_train, y_test = splitIfSame(Xfit, Xtest, column)
+
+    lda = LinearDiscriminantAnalysis()
+    coord_lda = lda.fit_transform(x_train, y_train)
+
+    true = y_test
+    predict = lda.predict(x_test)
+
+    tp_lda = (true, predict)
+
+    ###### CLASSIFIER 2 : QDA
+
+    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+    qda = QuadraticDiscriminantAnalysis()
+    coord_qda = qda.fit(x_train, y_train)
+
+    true = y_test
+    predict = qda.predict(x_test)
+
+    tp_qda = (true, predict)
+
+    ###### CLASSIFIER 3 : GNB
+
+    from sklearn.naive_bayes import GaussianNB
+
+    gnb = GaussianNB()
+    coord_gnb = gnb.fit(x_train, y_train)
+
+    true = y_test
+    predict = gnb.predict(x_test)
+
+    tp_gnb = (true, predict)
+
+    ###### CLASSIFIER 4 : KNC
+
+    from sklearn.neighbors import KNeighborsClassifier
+
+    knc = KNeighborsClassifier()
+    coord_gnb = knc.fit(x_train, y_train)
+
+    true = y_test
+    predict = knc.predict(x_test)
+
+    tp_knc = (true, predict)
+
+    ###### SUMMARY
+
+    table = PrettyTable()
+    table.set_style(DOUBLE_BORDER)
+
+    table.field_names = ["Confusion Matrix Score", "LDA", "QDA", "GNB", "KNC"]
+    table.add_row([
+        "Accuracy",
+        round(accuracy_score(tp_lda[0], tp_lda[1]), 2),
+        round(accuracy_score(tp_qda[0], tp_qda[1]), 2),
+        round(accuracy_score(tp_gnb[0], tp_gnb[1]), 2),
+        round(accuracy_score(tp_knc[0], tp_knc[1]), 2)
+    ])
+    table.add_row([
+        "Precision",
+        round(precision_score(tp_lda[0], tp_lda[1]), 2),
+        round(precision_score(tp_qda[0], tp_qda[1]), 2),
+        round(precision_score(tp_gnb[0], tp_gnb[1]), 2),
+        round(precision_score(tp_knc[0], tp_knc[1]), 2)
+    ])
+    table.add_row([
+        "Recall",
+        round(recall_score(tp_lda[0], tp_lda[1]), 2),
+        round(recall_score(tp_qda[0], tp_qda[1]), 2),
+        round(recall_score(tp_gnb[0], tp_gnb[1]), 2),
+        round(recall_score(tp_knc[0], tp_knc[1]), 2)
+    ])
+    table.add_row([
+        "Specificity",
+        round(specificity_score(tp_lda[0], tp_lda[1]), 2),
+        round(specificity_score(tp_qda[0], tp_qda[1]), 2),
+        round(specificity_score(tp_gnb[0], tp_gnb[1]), 2),
+        round(specificity_score(tp_knc[0], tp_knc[1]), 2)
+    ])
+    table.add_row([
+        "F1",
+        round(f1_score(tp_lda[0], tp_lda[1]), 2),
+        round(f1_score(tp_qda[0], tp_qda[1]), 2),
+        round(f1_score(tp_gnb[0], tp_gnb[1]), 2),
+        round(f1_score(tp_knc[0], tp_knc[1]), 2)
+    ])
+
+    print(table)
+
+def splitIfSame(
+    Xfit: pd.DataFrame,
+    Xtest: pd.DataFrame,
+    column: str,
+    test_size: float = 0.5
+):
+    if Xfit is Xtest:
+        print("WARNING : Xfit and Xtest are the same, splitting data")
+        x_train, x_test, y_train, y_test = train_test_split(
+            Xfit.loc[:, Xfit.columns!=column],
+            Xfit[column],
+            test_size=test_size
+        )
+    else:
+        x_train = Xfit.loc[:, Xfit.columns!=column]
+        x_test = Xtest.loc[:, Xtest.columns!=column]
+        y_train = Xfit[column]
+        y_test = Xtest[column]
+
+    return x_train, x_test, y_train, y_test
