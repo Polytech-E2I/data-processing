@@ -22,7 +22,7 @@ categories = {
     "restecg":  {0: "Normal", 1: "Abnormal"},
     "exang":    {0: "No", 1: "Yes"},
     "slope":    {1: "Upsloping", 2: "flat", 3: "Downsloping"},
-    "thal":     {3: "Normal", 6: "Fixed defect", 7: "Reversable defect"},
+    "thal":     {1: "Normal", 2: "Fixed defect", 3: "Reversable defect"},
     "target":   {0: "Healthy", 1: "Sick"}
 }
 
@@ -61,8 +61,7 @@ for i in range(100):
     x_train, x_test, y_train, y_test = train_test_split(X, Y)
 
     dtc = DecisionTreeClassifier(
-        max_depth=5,
-        min_samples_leaf=10
+        criterion="log_loss"
     )
     dtc.fit(x_train, y_train)
 
@@ -70,17 +69,9 @@ for i in range(100):
     predict = dtc.predict(x_test)
     accuracy = accuracy_score(true, predict)
 
-    # fig, ax = plt.subplots()
-    # _ = plot_tree(
-    #     dtc,
-    #     ax=ax
-    # )
-    # plt.title(f"Arbre de décision, Accuracy = {accuracy:.2f}")
-    # plt.show()
-
     accuracies.append(accuracy)
 
-print(pd.DataFrame(accuracies).describe())
+print(pd.DataFrame(accuracies).describe(percentiles=[]))
 
 #%%
 # Jouer sur :
