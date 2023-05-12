@@ -8,11 +8,12 @@ sys.path.append(libdir)
 import TDlib as td
 import pandas as pd
 from pprint import pprint
+import matplotlib.pyplot as plt
 
 #%%
 # Import data
 
-X = pd.read_csv('dataset.csv')
+data = pd.read_csv('dataset.csv')
 
 categories = {
     "sex":      {0: "Female", 1: "Male"},
@@ -26,20 +27,61 @@ categories = {
 }
 
 for key in categories.keys():
-    X[key] = X[key].astype("category")
+    data[key] = data[key].astype("category")
+
+column = "target"
 
 #%%
 # Describe data
 
-print(X.describe())
+print(data.describe())
 
 #%%
 # Display boxplots
 
 td.displayBoxplot(
-    td.renameCategories(X, categories),
-    "target",
+    td.renameCategories(data, categories),
+    column,
     sharey=False
 )
 
 # %%
+# DTC
+
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+X = data.loc[:, data.columns!=column]
+Y = data[column]
+
+accuracies = []
+
+for i in range(100):
+    x_train, x_test, y_train, y_test = train_test_split(X, Y)
+
+    dtc = DecisionTreeClassifier(
+        max_depth=5,
+        min_samples_leaf=10
+    )
+    dtc.fit(x_train, y_train)
+
+    true = y_test
+    predict = dtc.predict(x_test)
+    accuracy = accuracy_score(true, predict)
+
+    # fig, ax = plt.subplots()
+    # _ = plot_tree(
+    #     dtc,
+    #     ax=ax
+    # )
+    # plt.title(f"Arbre de décision, Accuracy = {accuracy:.2f}")
+    # plt.show()
+
+    accuracies.append(accuracy)
+
+print(pd.DataFrame(accuracies).describe())
+
+#%%
+# Jouer sur :
+# max_depth, min_samples_leaf, criterion, ccp_alpha
