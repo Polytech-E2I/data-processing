@@ -76,3 +76,6 @@ print(pd.DataFrame(accuracies).describe(percentiles=[]))
 #%%
 # Jouer sur :
 # max_depth, min_samples_leaf, criterion, ccp_alpha
+
+# ccp_alpha permet d'élaguer un arbre dense
+# Tracer accuracy = f(max_depth) etc
