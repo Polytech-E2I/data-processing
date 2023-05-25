@@ -16,14 +16,14 @@ import matplotlib.pyplot as plt
 data = pd.read_csv('dataset.csv')
 
 categories = {
-    "sex":      {0: "Female", 1: "Male"},
-    "cp":       {1: "Typical angina", 2: "Atypical angina", 3: "non-aginal pain", 4: "asymptomatic"},
-    "fbs":      {0: "Below", 1: "Above"},
-    "restecg":  {0: "Normal", 1: "Abnormal"},
-    "exang":    {0: "No", 1: "Yes"},
-    "slope":    {1: "Upsloping", 2: "flat", 3: "Downsloping"},
-    "thal":     {1: "Normal", 2: "Fixed defect", 3: "Reversable defect"},
-    "target":   {0: "Healthy", 1: "Sick"}
+    "sex":      {0: "Female",           1: "Male"},
+    "cp":       {1: "Typical angina",   2: "Atypical angina",   3: "non-anginal pain",  4: "asymptomatic"},
+    "fbs":      {0: "Below",            1: "Above"},
+    "restecg":  {0: "Normal",           1: "Abnormal",          2: "hypertrophy"},
+    "exang":    {0: "No",               1: "Yes"},
+    "slope":    {1: "Upsloping",        2: "Flat",              3: "Downsloping"},
+    "thal":     {3: "Normal",           6: "Fixed defect",      7: "Reversable defect"},
+    "target":   {0: "Healthy",          1: "Sick"}
 }
 
 for key in categories.keys():
