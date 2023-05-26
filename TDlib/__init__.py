@@ -432,6 +432,8 @@ def displayPopulationInFirstMainComponents(
     else:
         Xcr = X
 
+    Xcr = Xcr.loc[:, Xcr.columns!=column]
+
     Xacp = acp.fit(Xcr).transform(Xcr)
 
     if column == "":
