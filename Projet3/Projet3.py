@@ -66,11 +66,13 @@ print("\nRépartition des classes :")
 print(data["Classe"].value_counts(normalize=True) * 100)
 print("\nRépartition des sous-classes :")
 print(td.renameCategories(data, categories)["SousClasse"].value_counts(normalize=True) * 100)
+print()
+print(data.std())
 
 #%%
 # Descriptive stats
 
-td.displayBoxplot(td.renameCategories(data, categories), "SousClasse")
+td.displayBoxplot(td.renameCategories(data, categories), "Classe", sharey=False)
 
 # %%
 # Separate train and test sets
@@ -88,7 +90,12 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y)
 # X_test pour les comparer
 
 #%%
-# ACP
+# Pareto
+
+td.displayParetoDiagram(X_train, "Diagramme de Pareto")
+
+#%%
+# ACP Classe
 
 td.displayPopulationInFirstMainComponents(
     X_train.loc[:, X_train.columns!="SousClasse"],
@@ -96,13 +103,63 @@ td.displayPopulationInFirstMainComponents(
     ["Naturel", "Artificiel"]
 )
 
+#%%
+# ACP SousClasse
+
+td.displayPopulationInFirstMainComponents(
+    X_train.loc[:, X_train.columns!="Classe"],
+    "SousClasse",
+    categories["SousClasse"].values()
+)
+
 # %%
-# ALD
+# ALD Classe
 
 td.displayPopulationInFirstAndRandomDiscriminantComponents(
     X_train.loc[:, X_train.columns!="SousClasse"],
     predict_column,
     ["Naturel", "Artificiel"]
 )
+
+# %%
+# ALD SousClasse
+
+td.displayPopulationInFirstDiscriminantComponents(
+    X_train.loc[:, X_train.columns!="Classe"],
+    "SousClasse",
+    list(categories["SousClasse"].values())
+)
+
+# %%
+from sklearn.model_selection import cross_val_score
+from sklearn import svm
+import matplotlib.pyplot as plt
+import numpy as np
+
+kernels = ["linear", "poly", "rbf", "sigmoid"]
+
+X_val = td.separateNumAndCat(X_train)['Xnum']
+
+for kernel in kernels :
+
+    c_values = []
+    accuracies = []
+
+    for C in np.linspace(0.1,5,10):
+        clf = svm.SVC(kernel=kernel, C=C, random_state=42)
+        scores = cross_val_score(clf, X_val, Y_train, cv=5)
+
+        print(f"{kernel}, C={C} : {scores.mean()*100:.2f} %")
+
+        c_values.append(C)
+        accuracies.append(scores.mean()*100)
+
+    plt.plot(c_values, accuracies, label=kernel)
+
+plt.xlabel("C value")
+plt.ylabel("Accuracy score")
+plt.title(f"Accuracy en fonction de C")
+plt.legend()
+plt.show()
 
 # %%
