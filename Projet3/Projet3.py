@@ -7,6 +7,7 @@ from pprint import pprint
 import sys
 sys.path.append('..')
 import TDlib as td
+import matplotlib.pyplot as plt
 
 #%%
 # Import data
@@ -62,12 +63,16 @@ Y = data[predict_column]
 # Nb individus par class
 
 print(data.describe(percentiles=[]))
-print("\nRépartition des classes :")
-print(data["Classe"].value_counts(normalize=True) * 100)
-print("\nRépartition des sous-classes :")
-print(td.renameCategories(data, categories)["SousClasse"].value_counts(normalize=True) * 100)
-print()
+print(data.dropna().describe(percentiles=[]))
+print("Écarts-type")
 print(data.std())
+
+td.renameCategories(data, categories).groupby('Classe').size().plot(kind='pie', autopct='%.2f %%')
+plt.title("Répartition des classes")
+plt.show()
+td.renameCategories(data, categories).groupby('SousClasse').size().plot(kind='pie', autopct='%.2f %%')
+plt.title("Répartition des sous-classes")
+plt.show()
 
 #%%
 # Descriptive stats
@@ -90,26 +95,12 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y)
 # X_test pour les comparer
 
 #%%
-# Pareto
-
-td.displayParetoDiagram(X_train, "Diagramme de Pareto")
-
-#%%
 # ACP Classe
 
 td.displayPopulationInFirstMainComponents(
     X_train.loc[:, X_train.columns!="SousClasse"],
     predict_column,
     ["Naturel", "Artificiel"]
-)
-
-#%%
-# ACP SousClasse
-
-td.displayPopulationInFirstMainComponents(
-    X_train.loc[:, X_train.columns!="Classe"],
-    "SousClasse",
-    categories["SousClasse"].values()
 )
 
 # %%
@@ -122,15 +113,8 @@ td.displayPopulationInFirstAndRandomDiscriminantComponents(
 )
 
 # %%
-# ALD SousClasse
+# SVM
 
-td.displayPopulationInFirstDiscriminantComponents(
-    X_train.loc[:, X_train.columns!="Classe"],
-    "SousClasse",
-    list(categories["SousClasse"].values())
-)
-
-# %%
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
 import matplotlib.pyplot as plt
@@ -145,7 +129,7 @@ for kernel in kernels :
     c_values = []
     accuracies = []
 
-    for C in np.linspace(0.1,5,10):
+    for C in np.linspace(0.1, 10, 10):
         clf = svm.SVC(kernel=kernel, C=C, random_state=42)
         scores = cross_val_score(clf, X_val, Y_train, cv=5)
 
@@ -157,7 +141,7 @@ for kernel in kernels :
     plt.plot(c_values, accuracies, label=kernel)
 
 plt.xlabel("C value")
-plt.ylabel("Accuracy score")
+plt.ylabel("Accuracy score (%)")
 plt.title(f"Accuracy en fonction de C")
 plt.legend()
 plt.show()
