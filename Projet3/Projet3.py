@@ -114,36 +114,82 @@ td.displayPopulationInFirstAndRandomDiscriminantComponents(
     ["Naturel", "Artificiel"]
 )
 
+#%%
+# Set graph colors
+
+accuracies_colors = [
+    "xkcd:green",
+    "xkcd:blue",
+    "xkcd:brown",
+    "xkcd:red"
+]
+accuracies_min_colors = [
+    "xkcd:light green",
+    "xkcd:periwinkle",
+    "xkcd:light brown",
+    "xkcd:light red"
+]
+accuracies_max_colors = [
+    "xkcd:bright green",
+    "xkcd:royal blue",
+    "xkcd:mahogany",
+    "xkcd:crimson"
+]
+
 # %%
 # SVM
 
-# from sklearn import svm
+from sklearn import svm
 
-# kernels = ["linear", "poly", "rbf", "sigmoid"]
+kernels = ["linear", "poly", "rbf", "sigmoid"]
 
-# X_val = td.separateNumAndCat(X_train)['Xnum']
+X_val = td.separateNumAndCat(X_train)['Xnum']
 
-# for kernel in kernels :
+i = 0
+for kernel in kernels :
 
-#     c_values = []
-#     accuracies = []
+    c_values = []
+    accuracies = []
+    accuracies_min_conf = []
+    accuracies_max_conf = []
 
-#     for C in np.linspace(0.1, 10, 10):
-#         clf = svm.SVC(kernel=kernel, C=C, random_state=42)
-#         scores = cross_val_score(clf, X_val, Y_train, cv=5)
+    for C in np.linspace(0.1, 10, 10):
+        clf = svm.SVC(kernel=kernel, C=C, random_state=42)
+        scores = cross_val_score(clf, X_val, Y_train, cv=5)
 
-#         print(f"{kernel}, C={C} : {scores.mean()*100:.2f} %")
+        print(f"{kernel}, C={C} : {scores.mean()*100:.2f} %")
 
-#         c_values.append(C)
-#         accuracies.append(scores.mean()*100)
+        c_values.append(C)
 
-#     plt.plot(c_values, accuracies, label=kernel)
+        p = scores.mean()*100
+        accuracies.append(p)
 
-# plt.xlabel("C value")
-# plt.ylabel("Accuracy score (%)")
-# plt.title(f"Accuracy en fonction de C")
-# plt.legend()
-# plt.show()
+        conf_element = 1.96 * np.sqrt( p*(100-p) / len(Y_train) )
+        #conf_element = 2 * scores.std()
+
+        accuracies_min_conf.append(p - conf_element)
+        accuracies_max_conf.append(p + conf_element)
+
+    plt.plot(
+        c_values,
+        accuracies,
+        label=kernel,
+        color=accuracies_colors[i]
+    )
+    plt.fill_between(
+        c_values,
+        accuracies_min_conf,
+        accuracies_max_conf,
+        color=accuracies_min_colors[i]
+    )
+
+    i += 1
+
+plt.xlabel("C value")
+plt.ylabel("Accuracy score (%)")
+plt.title(f"Accuracy en fonction de C")
+plt.legend()
+plt.show()
 
 # %%
 # MLP
@@ -154,10 +200,13 @@ activations = ["identity", "logistic", "tanh", "relu"]
 
 X_val = td.separateNumAndCat(X_train)['Xnum']
 
+i = 0
 for activation in activations :
 
     hl_values = []
     accuracies = []
+    accuracies_min_conf = []
+    accuracies_max_conf = []
 
     for HL in range(1, 100, 10):
         mlp = MLPClassifier(
@@ -170,9 +219,29 @@ for activation in activations :
         print(f"{activation}, HL={HL} : {scores.mean()*100:.2f} %")
 
         hl_values.append(HL)
-        accuracies.append(scores.mean()*100)
 
-    plt.plot(hl_values, accuracies, label=activation)
+        p = scores.mean()*100
+        accuracies.append(p)
+
+        conf_element = 1.96 * np.sqrt( p*(100-p) / len(Y_train) )
+
+        accuracies_min_conf.append(p - conf_element)
+        accuracies_max_conf.append(p + conf_element)
+
+    plt.plot(
+        hl_values,
+        accuracies,
+        label=activation,
+        color=accuracies_colors[i]
+    )
+    plt.fill_between(
+        hl_values,
+        accuracies_min_conf,
+        accuracies_max_conf,
+        color=accuracies_min_colors[i]
+    )
+
+    i += 1
 
 plt.xlabel("Hidden layer size")
 plt.ylabel("Accuracy score (%)")
@@ -181,3 +250,16 @@ plt.legend()
 plt.show()
 
 #%%
+# Testing SVM
+
+
+
+#%%
+# PENSER AUX INTERVALLES DE CONFIANCE !!!!
+
+# Validation : valider avec accuracy
+# Testing : Checker la matrice de confusion complète
+# Testing : Avec les paramètres définis en validation, refaire train_test_split
+# sur la base complète
+
+# Préciser le positif : Naturel, artificiel...
