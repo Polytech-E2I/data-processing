@@ -55,6 +55,7 @@ for key in inv_categories.keys():
 predict_column = "Classe"
 
 X = data
+X_np = data.loc[:, data.columns!=predict_column]
 Y = data[predict_column]
 
 #%%
@@ -79,12 +80,12 @@ plt.show()
 #%%
 # Descriptive stats
 
-td.displayBoxplot(td.renameCategories(data, categories), "Classe", sharey=False)
+#td.displayBoxplot(td.renameCategories(data, categories), "Classe", sharey=False)
 
 # %%
 # Separate train and test sets
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y)
+#X_train, X_test, Y_train, Y_test = train_test_split(X, Y)
 
 # Re-diviser X_train en training et validation pour la phase de cross-validation
 # Googler cross-validation PAS A LA MAIN
@@ -100,7 +101,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y)
 # ACP Classe
 
 td.displayPopulationInFirstMainComponents(
-    X_train.loc[:, X_train.columns!="SousClasse"],
+    X.loc[:, X.columns!="SousClasse"],
     predict_column,
     ["Naturel", "Artificiel"]
 )
@@ -109,7 +110,7 @@ td.displayPopulationInFirstMainComponents(
 # ALD Classe
 
 td.displayPopulationInFirstAndRandomDiscriminantComponents(
-    X_train.loc[:, X_train.columns!="SousClasse"],
+    X.loc[:, X.columns!="SousClasse"],
     predict_column,
     ["Naturel", "Artificiel"]
 )
@@ -140,6 +141,9 @@ accuracies_max_colors = [
 # SVM
 
 from sklearn import svm
+
+
+X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
 
 kernels = ["linear", "poly", "rbf", "sigmoid"]
 
@@ -190,6 +194,48 @@ plt.ylabel("Accuracy score (%)")
 plt.title(f"Accuracy en fonction de C")
 plt.legend()
 plt.show()
+
+
+
+#%%
+# Testing SVM
+
+from sklearn import svm
+from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+
+C = 10
+kernel = 'rbf'
+
+X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)#, test_size=0.5)
+
+clf = svm.SVC(kernel=kernel, C=C)#, probability=True, random_state=42)
+clf.fit(X_train, Y_train)
+
+true = Y_test
+#true = Y
+predict = clf.predict(X_test)
+#predict = cross_val_predict(clf, X_np, Y, cv=5)
+
+confmatrix_norm = confusion_matrix(
+    true,
+    predict,
+    normalize='true'
+)
+tp, fp, fn, tn = confmatrix_norm.ravel()
+
+disp = ConfusionMatrixDisplay(
+    confmatrix_norm,
+    display_labels=["NATUREL", "ARTIFICIEL"]
+)
+disp.plot()
+plt.title(f"Matrice de confusion SVM C={C} kernel='{kernel}'")
+plt.show()
+
+print(f"TP = {tp}")
+print(f"FP = {fp}")
+print(f"TN = {tn}")
+print(f"FN = {fn}")
 
 # %%
 # MLP
@@ -249,10 +295,42 @@ plt.title(f"Accuracy en fonction de la taille de la couche cachée")
 plt.legend()
 plt.show()
 
+
 #%%
-# Testing SVM
+# Testing MLP
 
+from sklearn.neural_network import MLPClassifier
 
+activation = "tanh"
+HLS = 50
+
+X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
+
+mlp = MLPClassifier(activation=activation, hidden_layer_sizes=HLS)
+mlp.fit(X_train, Y_train)
+
+true = Y_test
+predict = mlp.predict(X_test)
+
+confmatrix_norm = confusion_matrix(
+    true,
+    predict,
+    normalize='true'
+)
+tp, fp, fn, tn = confmatrix_norm.ravel()
+
+disp = ConfusionMatrixDisplay(
+    confmatrix_norm,
+    display_labels=["NATUREL", "ARTIFICIEL"]
+)
+disp.plot()
+plt.title(f"Matrice de confusion MLP HLS={HLS} activation='{activation}'")
+plt.show()
+
+print(f"TP = {tp}")
+print(f"FP = {fp}")
+print(f"TN = {tn}")
+print(f"FN = {fn}")
 
 #%%
 # PENSER AUX INTERVALLES DE CONFIANCE !!!!
@@ -263,3 +341,7 @@ plt.show()
 # sur la base complète
 
 # Préciser le positif : Naturel, artificiel...
+
+# Passer aux sous-classes avec les paramètres déterminés avec les classes
+# Si bon : nickel
+# Si pas bon : refaire une évaluation des paramètres SVM et MLP
