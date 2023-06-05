@@ -7,7 +7,9 @@ from pprint import pprint
 import sys
 sys.path.append('..')
 import TDlib as td
+from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
+import numpy as np
 
 #%%
 # Import data
@@ -115,35 +117,67 @@ td.displayPopulationInFirstAndRandomDiscriminantComponents(
 # %%
 # SVM
 
-from sklearn.model_selection import cross_val_score
-from sklearn import svm
-import matplotlib.pyplot as plt
-import numpy as np
+# from sklearn import svm
 
-kernels = ["linear", "poly", "rbf", "sigmoid"]
+# kernels = ["linear", "poly", "rbf", "sigmoid"]
+
+# X_val = td.separateNumAndCat(X_train)['Xnum']
+
+# for kernel in kernels :
+
+#     c_values = []
+#     accuracies = []
+
+#     for C in np.linspace(0.1, 10, 10):
+#         clf = svm.SVC(kernel=kernel, C=C, random_state=42)
+#         scores = cross_val_score(clf, X_val, Y_train, cv=5)
+
+#         print(f"{kernel}, C={C} : {scores.mean()*100:.2f} %")
+
+#         c_values.append(C)
+#         accuracies.append(scores.mean()*100)
+
+#     plt.plot(c_values, accuracies, label=kernel)
+
+# plt.xlabel("C value")
+# plt.ylabel("Accuracy score (%)")
+# plt.title(f"Accuracy en fonction de C")
+# plt.legend()
+# plt.show()
+
+# %%
+# MLP
+
+from sklearn.neural_network import MLPClassifier
+
+activations = ["identity", "logistic", "tanh", "relu"]
 
 X_val = td.separateNumAndCat(X_train)['Xnum']
 
-for kernel in kernels :
+for activation in activations :
 
-    c_values = []
+    hl_values = []
     accuracies = []
 
-    for C in np.linspace(0.1, 10, 10):
-        clf = svm.SVC(kernel=kernel, C=C, random_state=42)
-        scores = cross_val_score(clf, X_val, Y_train, cv=5)
+    for HL in range(1, 100, 10):
+        mlp = MLPClassifier(
+            hidden_layer_sizes=(HL,),
+            activation=activation,
+            max_iter=500
+        )
+        scores = cross_val_score(mlp, X_val, Y_train, cv=5)
 
-        print(f"{kernel}, C={C} : {scores.mean()*100:.2f} %")
+        print(f"{activation}, HL={HL} : {scores.mean()*100:.2f} %")
 
-        c_values.append(C)
+        hl_values.append(HL)
         accuracies.append(scores.mean()*100)
 
-    plt.plot(c_values, accuracies, label=kernel)
+    plt.plot(hl_values, accuracies, label=activation)
 
-plt.xlabel("C value")
+plt.xlabel("Hidden layer size")
 plt.ylabel("Accuracy score (%)")
-plt.title(f"Accuracy en fonction de C")
+plt.title(f"Accuracy en fonction de la taille de la couche cachée")
 plt.legend()
 plt.show()
 
-# %%
+#%%
