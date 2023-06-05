@@ -207,7 +207,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 C = 10
 kernel = 'rbf'
 
-X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)#, test_size=0.5)
+X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y, test_size=0.5)
 
 clf = svm.SVC(kernel=kernel, C=C)#, probability=True, random_state=42)
 clf.fit(X_train, Y_train)
