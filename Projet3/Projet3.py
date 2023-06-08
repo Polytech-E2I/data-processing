@@ -416,6 +416,68 @@ plt.show()
 # print(f"TN = {tn}")
 # print(f"FN = {fn}")
 
+# %%
+# MLP SousClasse
+
+predict_column = "SousClasse"
+X_np = data.loc[:, data.columns!=predict_column]
+Y = data[predict_column]
+
+X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
+
+activations = ["identity", "logistic", "tanh", "relu"]
+
+X_val = td.separateNumAndCat(X_train)['Xnum']
+
+i = 0
+for activation in activations :
+
+    hl_values = []
+    accuracies = []
+    accuracies_min_conf = []
+    accuracies_max_conf = []
+
+    for HL in range(1, 100, 10):
+        mlp = MLPClassifier(
+            hidden_layer_sizes=(HL,),
+            activation=activation,
+            max_iter=500
+        )
+        scores = cross_val_score(mlp, X_val, Y_train, cv=5)
+
+        print(f"{activation}, HL={HL} : {scores.mean()*100:.2f} %")
+
+        hl_values.append(HL)
+
+        p = scores.mean()*100
+        accuracies.append(p)
+
+        conf_element = 1.96 * np.sqrt( p*(100-p) / len(Y_train) )
+
+        accuracies_min_conf.append(p - conf_element)
+        accuracies_max_conf.append(p + conf_element)
+
+    plt.plot(
+        hl_values,
+        accuracies,
+        label=activation,
+        color=accuracies_colors[i]
+    )
+    plt.fill_between(
+        hl_values,
+        accuracies_min_conf,
+        accuracies_max_conf,
+        color=accuracies_min_colors[i]
+    )
+
+    i += 1
+
+plt.xlabel("Hidden layer size")
+plt.ylabel("Accuracy score (%)")
+plt.title(f"Accuracy en fonction de la taille de la couche cachée")
+plt.legend()
+plt.show()
+
 #%%
 # Testing MLP Sous Classe
 
