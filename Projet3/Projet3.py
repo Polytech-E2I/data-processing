@@ -199,6 +199,11 @@ plt.show()
 C = 10
 kernel = 'rbf'
 
+predict_column = "Classe"
+X_np = data.loc[:, data.columns!=predict_column]
+X_np.drop(columns=["Y_Feature", "Cr_Feature", "Cb_Feature"], inplace=True)
+Y = data[predict_column]
+
 X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y, test_size=0.5)
 
 clf = svm.SVC(kernel=kernel, C=C)
@@ -292,6 +297,11 @@ plt.show()
 activation = "tanh"
 HLS = 50
 
+predict_column = "Classe"
+X_np = data.loc[:, data.columns!=predict_column]
+X_np.drop(columns=["Y_Feature", "Cr_Feature", "Cb_Feature"], inplace=True)
+Y = data[predict_column]
+
 X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
 
 mlp = MLPClassifier(activation=activation, hidden_layer_sizes=HLS)
@@ -325,6 +335,7 @@ print(f"FN = {fn}")
 
 predict_column = "SousClasse"
 X_np = data.loc[:, data.columns!=predict_column]
+X_np.drop("Y_Feature").drop("Cr_Feature").drop("Cb_Feature")
 Y = data[predict_column]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
@@ -383,6 +394,7 @@ plt.show()
 
 predict_column = "SousClasse"
 X_np = data.loc[:, data.columns!=predict_column]
+X_np.drop(columns=["Y_Feature", "Cr_Feature", "Cb_Feature"], inplace=True)
 Y = data[predict_column]
 
 C = 10
@@ -486,6 +498,7 @@ HLS = 50
 
 predict_column = "SousClasse"
 X_np = data.loc[:, data.columns!=predict_column]
+X_np.drop(columns=["Y_Feature", "Cr_Feature", "Cb_Feature"], inplace=True)
 Y = data[predict_column]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X_np, Y)
